@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MultiSearch — Find Similar Files Everywhere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ BACKGROUND -->
+<div class="bg-orbs" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ HEADER -->
+<header class="app-header" id="appHeader">
+  <div class="header-inner">
+
+    <a class="logo" href="/">
+      <div class="logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+          <path d="M11 8v6M8 11h6" stroke-width="2"/>
+        </svg>
+      </div>
+      <span class="logo-text">Multi<span class="logo-accent">Search</span></span>
+    </a>
+
+    <nav class="header-nav">
+      <button class="nav-pill" id="btnGdriveNav" title="Google Drive connection">
+        <span class="pill-dot" id="driveStatusDot"></span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M4.56 20.78 1 14.5l7.5-13h7l-7.5 13zM20 20.78H8.44l-3.5-6.28h15zm.44-.28L23 14.5l-3.5-6H16l3.5 6z"/></svg>
+        Google Drive
+      </button>
+      <button class="nav-pill" id="btnWaPaths" title="WhatsApp paths">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2C6.477 2 2 6.477 2 12.004c0 1.773.465 3.492 1.346 5L2 22l5.085-1.334A9.951 9.951 0 0 0 12.004 22C17.527 22 22 17.523 22 12.004 22 6.477 17.527 2 12.004 2zm0 18.195a8.181 8.181 0 0 1-4.17-1.142l-.299-.178-3.018.791.806-2.945-.195-.302A8.19 8.19 0 0 1 3.805 12c0-4.522 3.677-8.2 8.2-8.2 4.52 0 8.196 3.678 8.196 8.2 0 4.521-3.676 8.195-8.197 8.195z"/></svg>
+        WhatsApp
+      </button>
+      <button class="nav-pill" id="btnLocalPaths" title="Local search paths">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Local Paths
+      </button>
+      <button class="theme-toggle" id="btnTheme" title="Toggle dark/light mode" aria-label="Toggle theme">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </nav>
+
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════ HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      AI-Powered Similarity Search
+    </div>
+    <h1 class="hero-title">
+      Find Similar Files<br/>
+      <span class="hero-gradient-text">Everywhere You Store Them</span>
+    </h1>
+    <p class="hero-sub">
+      Upload an image, PDF, document, or paste text — instantly search across
+      <strong>Google Drive</strong>, your <strong>local computer</strong>, and <strong>WhatsApp</strong>
+      using perceptual hashing, TF-IDF and semantic similarity.
+    </p>
+    <div class="hero-chips">
+      <span class="chip">🖼️ Images</span>
+      <span class="chip">📄 PDFs</span>
+      <span class="chip">📝 Documents</span>
+      <span class="chip">💬 Chat exports</span>
+      <span class="chip">🔤 Plain text</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ MAIN -->
+<main class="container">
+
+  <!-- ── SEARCH CARD ───────────────────────────────────────── -->
+  <div class="glass-card search-card">
+
+    <!-- Tab bar -->
+    <div class="tab-bar" role="tablist">
+      <button class="tab-btn active" data-tab="file" role="tab" aria-selected="true">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Upload File
+      </button>
+      <button class="tab-btn" data-tab="text" role="tab" aria-selected="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="15" y1="12" x2="3" y2="12"/><line x1="17" y1="18" x2="3" y2="18"/></svg>
+        Enter Text
+      </button>
+    </div>
+
+    <!-- FILE TAB -->
+    <div class="tab-panel active" id="tab-file" role="tabpanel">
+      <div class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Upload file area">
+        <div class="drop-animation">
+          <div class="drop-ring drop-ring-1"></div>
+          <div class="drop-ring drop-ring-2"></div>
+          <div class="drop-ring drop-ring-3"></div>
+          <div class="drop-center-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+        </div>
+        <p class="drop-title">Drag &amp; drop your file here</p>
+        <p class="drop-sub">or <span class="drop-link">click to browse</span></p>
+        <div class="drop-types">
+          <span>JPEG</span><span>PNG</span><span>PDF</span><span>DOCX</span><span>TXT</span><span>XLSX</span><span>CSV</span><span>MD</span>
+        </div>
+        <input type="file" id="fileInput" class="file-input-hidden"
+               accept=".jpg,.jpeg,.png,.gif,.bmp,.webp,.tiff,.tif,.pdf,.txt,.md,.csv,.json,.xml,.html,.htm,.rtf,.yaml,.yml,.doc,.docx,.odt,.xls,.xlsx,.ppt,.pptx" />
+      </div>
+
+      <!-- File preview -->
+      <div class="file-preview hidden" id="filePreview">
+        <div class="preview-left">
+          <div class="preview-thumb-box">
+            <img id="previewImg" class="preview-thumb hidden" alt="preview" />
+            <div id="previewIcon" class="preview-file-icon hidden"></div>
+          </div>
+        </div>
+        <div class="preview-info">
+          <p class="preview-filename" id="previewName"></p>
+          <p class="preview-filesize" id="previewSize"></p>
+          <div class="preview-type-badge" id="previewType"></div>
+        </div>
+        <button class="preview-remove" id="btnClearFile" title="Remove file">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="extraText">
+          Additional context
+          <span class="label-badge">optional</span>
+        </label>
+        <textarea id="extraText" class="field-textarea" rows="2"
+                  placeholder="e.g. 'invoice from supplier Q3' or 'product comparison chart'"></textarea>
+      </div>
+    </div>
+
+    <!-- TEXT TAB -->
+    <div class="tab-panel" id="tab-text" role="tabpanel">
+      <div class="field-group">
+        <label class="field-label" for="plainText">Search text, description, or keywords</label>
+        <textarea id="plainText" class="field-textarea large" rows="7"
+                  placeholder="Paste text, type a description, or enter keywords…&#10;&#10;Example: 'Dell XPS 15 laptop price comparison i7 16GB'"></textarea>
+      </div>
+    </div>
+
+    <!-- SOURCE SELECTION -->
+    <div class="sources-section">
+      <p class="sources-label">Search in:</p>
+      <div class="source-grid">
+
+        <label class="source-card" id="srcGdrive">
+          <input type="checkbox" class="source-cb" value="gdrive" checked />
+          <div class="source-card-inner">
+            <div class="source-card-icon gdrive-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M4.56 20.78 1 14.5l7.5-13h7l-7.5 13zM20 20.78H8.44l-3.5-6.28h15zm.44-.28L23 14.5l-3.5-6H16l3.5 6z"/></svg>
+            </div>
+            <div class="source-card-body">
+              <span class="source-card-name">Google Drive</span>
+              <span class="source-card-status" id="gdriveStatus">checking…</span>
+            </div>
+            <div class="source-card-check">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+        </label>
+
+        <label class="source-card" id="srcLocal">
+          <input type="checkbox" class="source-cb" value="local" checked />
+          <div class="source-card-inner">
+            <div class="source-card-icon local-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            </div>
+            <div class="source-card-body">
+              <span class="source-card-name">This Computer</span>
+              <span class="source-card-status">ready</span>
+            </div>
+            <div class="source-card-check">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+        </label>
+
+        <label class="source-card" id="srcWhatsapp">
+          <input type="checkbox" class="source-cb" value="whatsapp" checked />
+          <div class="source-card-inner">
+            <div class="source-card-icon wa-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2C6.477 2 2 6.477 2 12.004c0 1.773.465 3.492 1.346 5L2 22l5.085-1.334A9.951 9.951 0 0 0 12.004 22C17.527 22 22 17.523 22 12.004 22 6.477 17.527 2 12.004 2zm0 18.195a8.181 8.181 0 0 1-4.17-1.142l-.299-.178-3.018.791.806-2.945-.195-.302A8.19 8.19 0 0 1 3.805 12c0-4.522 3.677-8.2 8.2-8.2 4.52 0 8.196 3.678 8.196 8.2 0 4.521-3.676 8.195-8.197 8.195z"/></svg>
+            </div>
+            <div class="source-card-body">
+              <span class="source-card-name">WhatsApp</span>
+              <span class="source-card-status" id="waStatus">checking…</span>
+            </div>
+            <div class="source-card-check">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+        </label>
+
+      </div>
+    </div>
+
+    <!-- Advanced options -->
+    <details class="advanced-section">
+      <summary class="advanced-toggle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        Advanced options
+        <svg class="adv-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="advanced-body">
+        <div class="adv-field">
+          <label class="field-label" for="extraLocalPaths">Extra local paths to search</label>
+          <input type="text" id="extraLocalPaths" class="adv-input"
+                 placeholder="D:\Projects, E:\Backups  (comma-separated)" />
+        </div>
+      </div>
+    </details>
+
+    <!-- Search button -->
+    <div class="search-action">
+      <button class="btn-search" id="btnSearch">
+        <span class="btn-search-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </span>
+        <span class="btn-search-label">Search All Sources</span>
+        <span class="btn-search-shine"></span>
+      </button>
+      <p class="search-hint">Press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to search</kbd></p>
+    </div>
+
+  </div>
+  <!-- end search-card -->
+
+  <!-- ── PROGRESS ──────────────────────────────────────────── -->
+  <div class="progress-section hidden" id="progressWrap">
+    <div class="progress-track">
+      <div class="progress-bar" id="progressFill"></div>
+    </div>
+    <div class="progress-meta">
+      <span class="progress-label" id="progressLabel">Searching…</span>
+      <span class="progress-spinner">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      </span>
+    </div>
+  </div>
+
+  <!-- ── RESULTS ────────────────────────────────────────────── -->
+  <section class="results-section hidden" id="resultsSection">
+
+    <!-- Stats bar -->
+    <div class="stats-bar">
+      <div class="stat-pill total">
+        <span class="stat-num" id="statTotal">0</span>
+        <span class="stat-lbl">results</span>
+      </div>
+      <div class="stats-divider"></div>
+      <div class="stat-pill">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M4.56 20.78 1 14.5l7.5-13h7l-7.5 13zM20 20.78H8.44l-3.5-6.28h15zm.44-.28L23 14.5l-3.5-6H16l3.5 6z"/></svg>
+        <span class="stat-num" id="statGdrive">–</span>
+        <span class="stat-lbl">Drive</span>
+      </div>
+      <div class="stat-pill">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        <span class="stat-num" id="statLocal">–</span>
+        <span class="stat-lbl">Local</span>
+      </div>
+      <div class="stat-pill">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2C6.477 2 2 6.477 2 12.004c0 1.773.465 3.492 1.346 5L2 22l5.085-1.334A9.951 9.951 0 0 0 12.004 22C17.527 22 22 17.523 22 12.004 22 6.477 17.527 2 12.004 2zm0 18.195a8.181 8.181 0 0 1-4.17-1.142l-.299-.178-3.018.791.806-2.945-.195-.302A8.19 8.19 0 0 1 3.805 12c0-4.522 3.677-8.2 8.2-8.2 4.52 0 8.196 3.678 8.196 8.2 0 4.521-3.676 8.195-8.197 8.195z"/></svg>
+        <span class="stat-num" id="statWhatsapp">–</span>
+        <span class="stat-lbl">WhatsApp</span>
+      </div>
+      <div class="stats-divider"></div>
+      <div class="stat-pill">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span class="stat-num" id="statTime">–</span>
+        <span class="stat-lbl">sec</span>
+      </div>
+    </div>
+
+    <!-- Result tabs -->
+    <div class="rtab-bar" role="tablist">
+      <button class="rtab active" data-rtab="all" role="tab">All Results</button>
+      <button class="rtab" data-rtab="gdrive" role="tab">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M4.56 20.78 1 14.5l7.5-13h7l-7.5 13zM20 20.78H8.44l-3.5-6.28h15zm.44-.28L23 14.5l-3.5-6H16l3.5 6z"/></svg>
+        Google Drive <span class="rtab-badge" id="rcGdrive"></span>
+      </button>
+      <button class="rtab" data-rtab="local" role="tab">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Local <span class="rtab-badge" id="rcLocal"></span>
+      </button>
+      <button class="rtab" data-rtab="whatsapp" role="tab">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2C6.477 2 2 6.477 2 12.004c0 1.773.465 3.492 1.346 5L2 22l5.085-1.334A9.951 9.951 0 0 0 12.004 22C17.527 22 22 17.523 22 12.004 22 6.477 17.527 2 12.004 2zm0 18.195a8.181 8.181 0 0 1-4.17-1.142l-.299-.178-3.018.791.806-2.945-.195-.302A8.19 8.19 0 0 1 3.805 12c0-4.522 3.677-8.2 8.2-8.2 4.52 0 8.196 3.678 8.196 8.2 0 4.521-3.676 8.195-8.197 8.195z"/></svg>
+        WhatsApp <span class="rtab-badge" id="rcWa"></span>
+      </button>
+    </div>
+
+    <!-- Result panels -->
+    <div id="resultsAll"      class="result-panel active"></div>
+    <div id="resultsGdrive"   class="result-panel hidden"></div>
+    <div id="resultsLocal"    class="result-panel hidden"></div>
+    <div id="resultsWhatsapp" class="result-panel hidden"></div>
+
+  </section>
+
+  <!-- ── EMPTY STATE ───────────────────────────────────────── -->
+  <div class="empty-state hidden" id="emptyState">
+    <div class="empty-graphic">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6" stroke-width="1"/></svg>
+    </div>
+    <h3 class="empty-title">No results found</h3>
+    <p class="empty-sub">Try a different file, broaden your search text, or enable more sources.</p>
+    <button class="btn-ghost" id="btnReset">Start a new search</button>
+  </div>
+
+</main>
+
+<!-- ════════════════════════════════════════════════════════════ MODALS -->
+
+<!-- Google Drive Modal -->
+<div class="modal-overlay hidden" id="modalGdrive" role="dialog" aria-modal="true" aria-labelledby="gdriveModalTitle">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <div class="modal-title-row">
+        <div class="modal-icon-wrap gdrive-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4.56 20.78 1 14.5l7.5-13h7l-7.5 13zM20 20.78H8.44l-3.5-6.28h15zm.44-.28L23 14.5l-3.5-6H16l3.5 6z"/></svg>
+        </div>
+        <h2 class="modal-title" id="gdriveModalTitle">Google Drive</h2>
+      </div>
+      <button class="modal-close" id="closeModalGdrive" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="gdriveModalBody">
+      <p class="modal-loading">Checking authentication status…</p>
+    </div>
+  </div>
+</div>
+
+<!-- WhatsApp Modal -->
+<div class="modal-overlay hidden" id="modalWa" role="dialog" aria-modal="true" aria-labelledby="waModalTitle">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <div class="modal-title-row">
+        <div class="modal-icon-wrap wa-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.004 2C6.477 2 2 6.477 2 12.004c0 1.773.465 3.492 1.346 5L2 22l5.085-1.334A9.951 9.951 0 0 0 12.004 22C17.527 22 22 17.523 22 12.004 22 6.477 17.527 2 12.004 2zm0 18.195a8.181 8.181 0 0 1-4.17-1.142l-.299-.178-3.018.791.806-2.945-.195-.302A8.19 8.19 0 0 1 3.805 12c0-4.522 3.677-8.2 8.2-8.2 4.52 0 8.196 3.678 8.196 8.2 0 4.521-3.676 8.195-8.197 8.195z"/></svg>
+        </div>
+        <h2 class="modal-title" id="waModalTitle">WhatsApp Paths</h2>
+      </div>
+      <button class="modal-close" id="closeModalWa" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="waModalBody">
+      <p class="modal-loading">Loading…</p>
+    </div>
+  </div>
+</div>
+
+<!-- Local Paths Modal -->
+<div class="modal-overlay hidden" id="modalLocal" role="dialog" aria-modal="true" aria-labelledby="localModalTitle">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <div class="modal-title-row">
+        <div class="modal-icon-wrap local-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <h2 class="modal-title" id="localModalTitle">Local Search Paths</h2>
+      </div>
+      <button class="modal-close" id="closeModalLocal" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="localModalBody">
+      <p class="modal-loading">Loading…</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ TOAST -->
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>

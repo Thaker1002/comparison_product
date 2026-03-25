@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "Thaker's Quest",
+    "slug": "thakers-quest",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0B1E"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.thakersquest.pricecompare",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Upload product photos to search for prices",
+        "NSCameraUsageDescription": "Take product photos to search for prices"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A0B1E"
+      },
+      "package": "com.thakersquest.pricecompare",
+      "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Thaker's Quest to access your photos to search for product prices.",
+          "cameraPermission": "Allow Thaker's Quest to use your camera to photograph products."
+        }
+      ]
+    ]
+  }
+}

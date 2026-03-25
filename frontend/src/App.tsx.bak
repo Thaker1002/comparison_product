@@ -1,0 +1,850 @@
+import { useState, useCallback, useRef, useEffect } from "react";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+} from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import {
+  Search,
+  Sparkles,
+  ShoppingBag,
+  Zap,
+  Globe,
+  TrendingDown,
+  Star,
+  Shield,
+  ArrowRight,
+  Camera,
+} from "lucide-react";
+import { Header } from "@/components/Header";
+import { ImageUpload } from "@/components/ImageUpload";
+import { SearchBar } from "@/components/SearchBar";
+import { ResultsGrid } from "@/components/ResultsGrid";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import type { UploadedImage, SearchFilters, SearchResponse } from "@/types";
+import { DEFAULT_FILTERS as DF } from "@/types";
+import axios from "axios";
+
+// ─── QueryClient ──────────────────────────────────────────────────────────────
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+    },
+  },
+});
+
+// ─── Search API call ──────────────────────────────────────────────────────────
+
+async function searchProducts(params: {
+  query: string;
+  marketplaces: string[];
+  searchMode: string;
+  image?: string;
+}): Promise<SearchResponse> {
+  const formData = new FormData();
+  formData.append("query", params.query);
+  params.marketplaces.forEach((m) => formData.append("marketplaces", m));
+  formData.append("searchMode", params.searchMode);
+
+  if (params.image) {
+    try {
+      const res = await fetch(params.image);
+      const blob = await res.blob();
+      formData.append("image", blob, "product.jpg");
+    } catch {
+      // skip image if conversion fails
+    }
+  }
+
+  const { data } = await axios.post<SearchResponse>("/api/search", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    timeout: 120_000,
+  });
+  return data;
+}
+
+// ─── Hero Section ─────────────────────────────────────────────────────────────
+
+interface HeroProps {
+  onQuickSearch: (q: string) => void;
+}
+
+function Hero({ onQuickSearch }: HeroProps) {
+  const QUICK_SEARCHES = [
+    "Coca-Cola 1.5L",
+    "iPhone 15",
+    "Whey Protein",
+    "Shampoo",
+    "Face Mask",
+    "Vitamin C",
+    "Olive Oil",
+    "Running Shoes",
+  ];
+
+  const FEATURES = [
+    { icon: Globe, label: "6 Thai Marketplaces", color: "text-blue-400" },
+    { icon: Zap, label: "Real-time Prices", color: "text-yellow-400" },
+    {
+      icon: TrendingDown,
+      label: "Best Deals Found",
+      color: "text-emerald-400",
+    },
+    { icon: Star, label: "Ratings & Reviews", color: "text-amber-400" },
+    { icon: Shield, label: "Firecrawl Powered", color: "text-purple-400" },
+  ];
+
+  return (
+    <section className="relative pt-16 pb-12 px-4 overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden>
+        {/* Radial glows */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-radial from-indigo-500/8 via-purple-500/4 to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-20 left-10 w-48 h-48 bg-purple-500/5 rounded-full blur-2xl" />
+        <div className="absolute top-20 right-10 w-48 h-48 bg-pink-500/5 rounded-full blur-2xl" />
+        {/* Grid pattern */}
+        <div className="absolute inset-0 dot-pattern opacity-30" />
+      </div>
+
+      <div className="relative mx-auto max-w-4xl text-center space-y-8">
+        {/* Badge */}
+        <div className="flex justify-center animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-white/10 text-xs font-semibold text-muted-foreground">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400">
+              <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75" />
+            </span>
+            Powered by{" "}
+            <span className="text-orange-400 font-bold">Firecrawl</span> AI Web
+            Scraping
+            <span className="mx-1 text-border">·</span>
+            <span className="text-foreground">Thailand 🇹🇭</span>
+          </div>
+        </div>
+
+        {/* Headline */}
+        <div className="space-y-4 animate-fade-in delay-100">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
+            <span className="text-foreground">Find the</span>{" "}
+            <span className="gradient-text">Best Price</span>
+            <br />
+            <span className="text-foreground">Across Thai</span>{" "}
+            <span className="gradient-text-gold">Marketplaces</span>
+          </h1>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Upload a product photo or type a product name to instantly compare
+            prices across <strong className="text-foreground">Shopee</strong>,{" "}
+            <strong className="text-foreground">Lazada</strong>,{" "}
+            <strong className="text-foreground">JD Central</strong>,{" "}
+            <strong className="text-foreground">Big C</strong>,{" "}
+            <strong className="text-foreground">Central</strong> and{" "}
+            <strong className="text-foreground">Makro</strong>.
+          </p>
+        </div>
+
+        {/* Feature pills */}
+        <div className="flex items-center justify-center flex-wrap gap-2 animate-fade-in delay-200">
+          {FEATURES.map(({ icon: Icon, label, color }) => (
+            <div
+              key={label}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass border border-white/8 text-xs font-medium text-muted-foreground"
+            >
+              <Icon className={cn("w-3.5 h-3.5", color)} />
+              {label}
+            </div>
+          ))}
+        </div>
+
+        {/* Quick search suggestions */}
+        <div className="animate-fade-in delay-300">
+          <p className="text-xs text-muted-foreground mb-3 flex items-center justify-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
+            Popular searches in Thailand
+          </p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {QUICK_SEARCHES.map((s) => (
+              <button
+                key={s}
+                onClick={() => onQuickSearch(s)}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-medium",
+                  "border border-border/50 bg-secondary/30",
+                  "text-muted-foreground",
+                  "hover:bg-secondary hover:border-border hover:text-foreground",
+                  "transition-all duration-200 hover:-translate-y-px",
+                  "flex items-center gap-1.5",
+                )}
+              >
+                <Search className="w-3 h-3 opacity-50" />
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Marketplace logos row */}
+        <div className="flex items-center justify-center gap-3 flex-wrap pt-2 animate-fade-in delay-500">
+          {[
+            {
+              name: "Shopee",
+              color: "#EE4D2D",
+              bg: "bg-orange-500/10 border-orange-500/20",
+              emoji: "🟠",
+            },
+            {
+              name: "Lazada",
+              color: "#7B83EB",
+              bg: "bg-indigo-500/10 border-indigo-500/20",
+              emoji: "🔵",
+            },
+            {
+              name: "JD Central",
+              color: "#CC0000",
+              bg: "bg-red-500/10 border-red-500/20",
+              emoji: "🔴",
+            },
+            {
+              name: "Big C",
+              color: "#F5A623",
+              bg: "bg-amber-500/10 border-amber-500/20",
+              emoji: "🟡",
+            },
+            {
+              name: "Central",
+              color: "#CC4444",
+              bg: "bg-rose-500/10 border-rose-500/20",
+              emoji: "🏬",
+            },
+            {
+              name: "Makro",
+              color: "#4499DD",
+              bg: "bg-blue-500/10 border-blue-500/20",
+              emoji: "🏪",
+            },
+          ].map(({ name, bg, emoji }) => (
+            <div
+              key={name}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border",
+                bg,
+              )}
+            >
+              <span>{emoji}</span>
+              <span className="text-foreground/80">{name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Search Panel ─────────────────────────────────────────────────────────────
+
+interface SearchPanelProps {
+  query: string;
+  onQueryChange: (q: string) => void;
+  onSearch: () => void;
+  filters: SearchFilters;
+  onFiltersChange: (f: Partial<SearchFilters>) => void;
+  uploadedImage: UploadedImage | null;
+  onImageChange: (img: UploadedImage | null) => void;
+  isLoading: boolean;
+  resultCount?: number;
+}
+
+function SearchPanel({
+  query,
+  onQueryChange,
+  onSearch,
+  filters,
+  onFiltersChange,
+  uploadedImage,
+  onImageChange,
+  isLoading,
+  resultCount,
+}: SearchPanelProps) {
+  const [showImageUpload, setShowImageUpload] = useState(false);
+
+  // Image-name confirmation state
+  // When a new image is uploaded and a name is auto-extracted, we show a
+  // small inline banner so the user can review / edit it before searching.
+  const [pendingImageName, setPendingImageName] = useState<string | null>(null);
+  const [editingImageName, setEditingImageName] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus the inline edit input when it becomes visible
+  useEffect(() => {
+    if (isEditingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+      nameInputRef.current.select();
+    }
+  }, [isEditingName]);
+
+  // Clear the confirmation banner when the image is removed
+  useEffect(() => {
+    if (!uploadedImage) {
+      setPendingImageName(null);
+      setEditingImageName("");
+      setIsEditingName(false);
+    }
+  }, [uploadedImage]);
+
+  const handleConfirmImageName = () => {
+    const confirmed = editingImageName.trim();
+    if (confirmed.length >= 2) {
+      onQueryChange(confirmed);
+    }
+    setPendingImageName(null);
+    setIsEditingName(false);
+  };
+
+  const handleDismissImageName = () => {
+    setPendingImageName(null);
+    setIsEditingName(false);
+  };
+
+  return (
+    <div className="glass-card rounded-3xl border border-border/50 p-6 shadow-2xl shadow-black/20 space-y-5">
+      {/* Image upload toggle */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <ShoppingBag className="w-4 h-4 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">
+              Product Search
+            </h2>
+            <p className="text-[11px] text-muted-foreground">
+              Search by name or upload an image
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => setShowImageUpload((v) => !v)}
+          className={cn(
+            "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border",
+            "transition-all duration-200",
+            showImageUpload || uploadedImage
+              ? "bg-primary/10 border-primary/30 text-primary"
+              : "border-border/50 text-muted-foreground hover:text-foreground hover:border-border bg-secondary/30",
+          )}
+        >
+          <Camera className="w-3.5 h-3.5" />
+          {uploadedImage ? "Image ready ✓" : "Upload Image"}
+        </button>
+      </div>
+
+      {/* Image upload area */}
+      {(showImageUpload || uploadedImage) && (
+        <div className="animate-fade-in">
+          <ImageUpload
+            currentImage={uploadedImage}
+            onImageChange={(img) => {
+              onImageChange(img);
+              if (!img) {
+                setShowImageUpload(false);
+                setPendingImageName(null);
+              }
+            }}
+            onProductNameExtracted={(name) => {
+              // Always surface the auto-extracted name as a confirmation prompt
+              // so the user can review and correct it before searching.
+              setPendingImageName(name);
+              setEditingImageName(name);
+              setIsEditingName(false);
+              // Pre-fill the query box silently only when it's empty
+              if (!query || query.trim().length < 3) {
+                onQueryChange(name);
+              }
+            }}
+            disabled={isLoading}
+            className="max-w-full"
+          />
+
+          {/* ── Image-name confirmation banner ─────────────────────────── */}
+          {uploadedImage && pendingImageName && (
+            <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 animate-fade-in">
+              <div className="flex items-start gap-2">
+                <span className="text-base leading-none mt-0.5">🖼️</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-semibold text-amber-400 mb-1">
+                    Product name auto-detected from image filename
+                  </p>
+
+                  {isEditingName ? (
+                    /* Inline edit mode */
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <input
+                        ref={nameInputRef}
+                        type="text"
+                        value={editingImageName}
+                        onChange={(e) => setEditingImageName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleConfirmImageName();
+                          if (e.key === "Escape") {
+                            setIsEditingName(false);
+                          }
+                        }}
+                        className={cn(
+                          "flex-1 min-w-0 px-2.5 py-1 rounded-lg text-xs",
+                          "bg-background/80 border border-amber-500/40 text-foreground",
+                          "focus:outline-none focus:ring-1 focus:ring-amber-500/50",
+                        )}
+                        placeholder="Type the product name…"
+                      />
+                      <button
+                        onClick={handleConfirmImageName}
+                        className="shrink-0 px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[11px] font-semibold hover:bg-amber-500/30 transition-colors"
+                      >
+                        Use
+                      </button>
+                      <button
+                        onClick={() => setIsEditingName(false)}
+                        className="shrink-0 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    /* Read-only preview mode */
+                    <div className="flex items-center gap-2 flex-wrap mt-1">
+                      <span className="flex-1 min-w-0 px-2.5 py-1 rounded-lg bg-background/60 border border-border/50 text-xs text-foreground font-medium truncate">
+                        {pendingImageName}
+                      </span>
+                      <button
+                        onClick={() => {
+                          setIsEditingName(true);
+                        }}
+                        className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg border border-border/50 text-[11px] text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+                      >
+                        ✏️ Edit
+                      </button>
+                      <button
+                        onClick={handleDismissImageName}
+                        className="shrink-0 text-[11px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+                        title="Dismiss"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+
+                  <p className="text-[10px] text-muted-foreground/70 mt-1.5">
+                    Edit the name above if it's incorrect, then search.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {uploadedImage && !pendingImageName && (
+            <p className="mt-2 text-center text-[11px] text-muted-foreground">
+              💡 The image will be sent alongside your search query for better
+              results
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Divider when image upload is shown */}
+      {(showImageUpload || uploadedImage) && (
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-border/40" />
+          <span className="text-[11px] text-muted-foreground font-medium px-2">
+            or search by name
+          </span>
+          <div className="flex-1 h-px bg-border/40" />
+        </div>
+      )}
+
+      {/* Search bar */}
+      <SearchBar
+        query={query}
+        onQueryChange={onQueryChange}
+        onSearch={onSearch}
+        filters={filters}
+        onFiltersChange={onFiltersChange}
+        isLoading={isLoading}
+        resultCount={resultCount}
+      />
+    </div>
+  );
+}
+
+// ─── Inner App (uses hooks) ───────────────────────────────────────────────────
+
+function AppInner() {
+  const [query, setQuery] = useState("");
+  const [uploadedImage, setUploadedImage] = useState<UploadedImage | null>(
+    null,
+  );
+  const [filters, setFilters] = useState<SearchFilters>(DF);
+  const [searchResults, setSearchResults] = useState<SearchResponse | null>(
+    null,
+  );
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const updateFilters = useCallback((partial: Partial<SearchFilters>) => {
+    setFilters((prev) => ({ ...prev, ...partial }));
+  }, []);
+
+  // TanStack useMutation for search
+  const searchMutation = useMutation({
+    mutationFn: searchProducts,
+    onSuccess: (data) => {
+      setSearchResults(data);
+      setHasSearched(true);
+      // Scroll to results
+      setTimeout(() => {
+        document.getElementById("results-section")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 200);
+    },
+    onError: (err) => {
+      console.error("Search failed:", err);
+    },
+  });
+
+  const handleSearch = useCallback(() => {
+    const trimmed = query.trim();
+    if (trimmed.length < 2) return;
+
+    searchMutation.mutate({
+      query: trimmed,
+      marketplaces: filters.marketplaces,
+      searchMode: filters.searchMode,
+      image: uploadedImage?.preview,
+    });
+  }, [query, filters, uploadedImage, searchMutation]);
+
+  const handleQuickSearch = useCallback(
+    (q: string) => {
+      setQuery(q);
+      searchMutation.mutate({
+        query: q,
+        marketplaces: filters.marketplaces,
+        searchMode: filters.searchMode,
+      });
+    },
+    [filters, searchMutation],
+  );
+
+  const isLoading = searchMutation.isPending;
+  const isError = searchMutation.isError;
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <Header />
+
+      {/* Main content */}
+      <main className="flex-1">
+        {/* Hero section (hide after first search) */}
+        {!hasSearched && <Hero onQuickSearch={handleQuickSearch} />}
+
+        {/* Search panel */}
+        <section
+          className={cn(
+            "mx-auto max-w-4xl px-4",
+            hasSearched ? "pt-6" : "pt-0",
+          )}
+        >
+          <SearchPanel
+            query={query}
+            onQueryChange={setQuery}
+            onSearch={handleSearch}
+            filters={filters}
+            onFiltersChange={updateFilters}
+            uploadedImage={uploadedImage}
+            onImageChange={setUploadedImage}
+            isLoading={isLoading}
+            resultCount={searchResults?.totalResults}
+          />
+        </section>
+
+        {/* Error state */}
+        {isError && (
+          <section className="mx-auto max-w-4xl px-4 mt-6 animate-fade-in">
+            <div className="glass-card rounded-2xl border border-red-500/20 bg-red-500/5 p-5 flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                <span className="text-xl">⚠️</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-semibold text-red-400 mb-1">
+                  Search Failed
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {searchMutation.error instanceof Error
+                    ? searchMutation.error.message
+                    : "Could not connect to the search API. Make sure the backend server is running on port 3001."}
+                </p>
+                <div className="mt-3 flex items-center gap-2 flex-wrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSearch}
+                    className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
+                  >
+                    Try Again
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground">
+                    Backend URL:{" "}
+                    <code className="text-foreground font-mono">
+                      http://localhost:3001
+                    </code>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Results */}
+        <section
+          id="results-section"
+          className={cn(
+            "mx-auto max-w-7xl px-4 pb-16",
+            hasSearched || isLoading ? "mt-8" : "mt-0",
+          )}
+        >
+          {(isLoading || hasSearched) && (
+            <>
+              {/* Results header */}
+              {hasSearched && !isLoading && searchResults && (
+                <div className="flex items-center justify-between mb-6 animate-fade-in">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg font-bold text-foreground">
+                        Results for{" "}
+                        <span className="gradient-text">
+                          "{searchResults.query}"
+                        </span>
+                      </h2>
+                    </div>
+                    <Badge variant="info" className="text-[11px]">
+                      {searchResults.totalResults} products
+                    </Badge>
+                    <Badge variant="secondary" className="text-[11px]">
+                      {searchResults.marketplacesSearched} marketplaces
+                    </Badge>
+                    {searchResults._meta &&
+                      searchResults._meta.fallbackUrlCount > 0 && (
+                        <Badge
+                          variant="warning"
+                          className="text-[11px] gap-1 cursor-help"
+                          title={`${searchResults._meta.fallbackUrlCount} product link(s) (${searchResults._meta.fallbackUrlPct}%) could not be verified and were replaced with marketplace search pages. These are shown with a "Search on Site" button.`}
+                        >
+                          ⚠️ {searchResults._meta.fallbackUrlCount} search
+                          fallback
+                          {searchResults._meta.fallbackUrlCount !== 1
+                            ? "s"
+                            : ""}
+                        </Badge>
+                      )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground hidden sm:block">
+                      {new Date(searchResults.timestamp).toLocaleTimeString(
+                        "th-TH",
+                      )}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSearch}
+                      disabled={isLoading}
+                      className="gap-1.5 text-xs"
+                    >
+                      <Search className="w-3.5 h-3.5" />
+                      Refresh
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              <ResultsGrid
+                products={searchResults?.products ?? []}
+                summaries={searchResults?.summary ?? []}
+                query={searchResults?.query ?? query}
+                isLoading={isLoading}
+                filters={filters}
+                timestamp={searchResults?.timestamp}
+              />
+            </>
+          )}
+
+          {/* Initial empty state with CTA */}
+          {!hasSearched && !isLoading && (
+            <div className="mt-8 animate-fade-in delay-700">
+              {/* How it works section */}
+              <div className="text-center mb-8">
+                <h2 className="text-xl font-bold text-foreground mb-2">
+                  How It Works
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Three simple steps to find the best deal
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                {[
+                  {
+                    step: "01",
+                    icon: Camera,
+                    title: "Upload or Type",
+                    desc: "Upload a product photo or type the product name you want to compare",
+                    color:
+                      "from-indigo-500/15 to-indigo-600/5 border-indigo-500/20",
+                    iconColor: "text-indigo-400",
+                    badge: "Start here",
+                  },
+                  {
+                    step: "02",
+                    icon: Globe,
+                    title: "AI Scrapes Markets",
+                    desc: "Firecrawl AI visits Shopee, Lazada, JD Central, Big C and more simultaneously",
+                    color:
+                      "from-purple-500/15 to-purple-600/5 border-purple-500/20",
+                    iconColor: "text-purple-400",
+                    badge: "Automated",
+                  },
+                  {
+                    step: "03",
+                    icon: TrendingDown,
+                    title: "Compare & Save",
+                    desc: "See prices, ratings, capacity info and find the best deal instantly",
+                    color:
+                      "from-emerald-500/15 to-emerald-600/5 border-emerald-500/20",
+                    iconColor: "text-emerald-400",
+                    badge: "Save money",
+                  },
+                ].map(
+                  ({
+                    step,
+                    icon: Icon,
+                    title,
+                    desc,
+                    color,
+                    iconColor,
+                    badge,
+                  }) => (
+                    <div
+                      key={step}
+                      className={cn(
+                        "relative rounded-2xl border p-5 bg-gradient-to-br text-center",
+                        "transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/20",
+                        color,
+                      )}
+                    >
+                      {/* Step number */}
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <div className="px-3 py-0.5 rounded-full bg-background border border-border text-[10px] font-bold text-muted-foreground">
+                          Step {step}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-center gap-3 pt-2">
+                        <div
+                          className={cn(
+                            "w-12 h-12 rounded-2xl bg-background/50 border border-white/10 flex items-center justify-center",
+                            iconColor,
+                          )}
+                        >
+                          <Icon className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-foreground mb-1">
+                            {title}
+                          </h3>
+                          <p className="text-[11px] text-muted-foreground leading-relaxed">
+                            {desc}
+                          </p>
+                        </div>
+                        <Badge variant="secondary" className="text-[10px]">
+                          {badge}
+                        </Badge>
+                      </div>
+                    </div>
+                  ),
+                )}
+              </div>
+
+              {/* CTA button */}
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={() => {
+                    document
+                      .querySelector('input[type="text"]')
+                      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    (
+                      document.querySelector(
+                        'input[type="text"]',
+                      ) as HTMLInputElement
+                    )?.focus();
+                  }}
+                  className="flex items-center gap-2 btn-gradient px-8 py-3 text-sm"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Start Comparing Prices
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border/40 py-6 px-4 mt-auto">
+        <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <ShoppingBag className="w-4 h-4 text-primary" />
+            <span className="font-semibold gradient-text">Thaker's Quest</span>
+            <span>·</span>
+            <span>Powered by Firecrawl AI</span>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap justify-center">
+            {[
+              "Shopee",
+              "Lazada",
+              "JD Central",
+              "Big C",
+              "Central",
+              "Makro",
+            ].map((m) => (
+              <span key={m} className="text-[11px] text-muted-foreground/60">
+                {m}
+              </span>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground/50">
+            © {new Date().getFullYear()} Thailand Markets
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+// ─── Root App (with providers) ────────────────────────────────────────────────
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppInner />
+      {(import.meta as { env?: { DEV?: boolean } }).env?.DEV && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
+    </QueryClientProvider>
+  );
+}

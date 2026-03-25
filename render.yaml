@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: compare-by-thaker
+    runtime: node
+    buildCommand: cd frontend && npm install --legacy-peer-deps && npm run build && cd ../backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: SERPAPI_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

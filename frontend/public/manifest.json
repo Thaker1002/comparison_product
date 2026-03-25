@@ -1,0 +1,28 @@
+{
+  "name": "compare — by Thaker",
+  "short_name": "compare",
+  "description": "Compare prices across marketplaces for products, taxi fares, and more",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0f2f5",
+  "theme_color": "#4f46e5",
+  "orientation": "any",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "utilities", "travel"],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
