@@ -116,11 +116,16 @@ const TAXI_SERVICES: Record<string, TaxiService[]> = {
   TH: [
     // Metered Taxi (Bangkok)
     { id: "metered", name: "Metered Taxi (approx)", color: "#FFD700", logo: "🚕", type: "Metered Taxi", isMetered: true, pricing: { baseFare: 35, perKm: 5.5, perMin: 0, currency: "THB", currencySymbol: "฿", minFare: 35 } },
+    // Car services
     { id: "grab", name: "Grab", color: "#00B14F", logo: "🟢", type: "Car", deepLinkTemplate: (p, d) => `https://grab.onelink.me/2695613898?af_dp=grab%3A%2F%2Fopen%3Flat%3D${p.lat}%26lng%3D${p.lng}%26destLat%3D${d.lat}%26destLng%3D${d.lng}`, webUrl: "https://www.grab.com", pricing: { baseFare: 25, perKm: 6.5, perMin: 1.5, currency: "THB", currencySymbol: "฿", minFare: 45 } },
     { id: "bolt", name: "Bolt", color: "#34D186", logo: "⚡", type: "Car", deepLinkTemplate: (p, d) => `https://m.bolt.eu/en/?pickup_lat=${p.lat}&pickup_lng=${p.lng}&destination_lat=${d.lat}&destination_lng=${d.lng}`, webUrl: "https://bolt.eu", pricing: { baseFare: 20, perKm: 5.5, perMin: 1.2, currency: "THB", currencySymbol: "฿", minFare: 40 } },
     { id: "lineman", name: "LINE MAN", color: "#00C300", logo: "🟩", type: "Car", deepLinkTemplate: () => `https://lineman.line.me`, webUrl: "https://lineman.line.me", pricing: { baseFare: 30, perKm: 7.0, perMin: 1.5, currency: "THB", currencySymbol: "฿", minFare: 50 } },
     { id: "indrive", name: "inDrive", color: "#B2FF59", logo: "🚗", type: "Car", deepLinkTemplate: () => `https://indrive.com`, webUrl: "https://indrive.com", pricing: { baseFare: 20, perKm: 5.0, perMin: 1.0, currency: "THB", currencySymbol: "฿", minFare: 35 } },
     { id: "cabb", name: "Cabb", color: "#FFD700", logo: "🚕", type: "Car", deepLinkTemplate: () => `https://cabb.go.th`, webUrl: "https://cabb.go.th", pricing: { baseFare: 35, perKm: 5.5, perMin: 2.0, currency: "THB", currencySymbol: "฿", minFare: 35 } },
+    // Bike services
+    { id: "grab_bike", name: "Grab Bike", color: "#00B14F", logo: "🏍️", type: "Bike", deepLinkTemplate: (p, d) => `https://grab.onelink.me/2695613898?af_dp=grab%3A%2F%2Fopen%3Flat%3D${p.lat}%26lng%3D${p.lng}%26destLat%3D${d.lat}%26destLng%3D${d.lng}`, webUrl: "https://www.grab.com", pricing: { baseFare: 15, perKm: 4.0, perMin: 0.8, currency: "THB", currencySymbol: "฿", minFare: 25 } },
+    { id: "bolt_bike", name: "Bolt Bike", color: "#34D186", logo: "🏍️", type: "Bike", deepLinkTemplate: (p, d) => `https://m.bolt.eu/en/?pickup_lat=${p.lat}&pickup_lng=${p.lng}&destination_lat=${d.lat}&destination_lng=${d.lng}`, webUrl: "https://bolt.eu", pricing: { baseFare: 12, perKm: 3.5, perMin: 0.7, currency: "THB", currencySymbol: "฿", minFare: 20 } },
+    { id: "lineman_bike", name: "LINE MAN Bike", color: "#00C300", logo: "🏍️", type: "Bike", deepLinkTemplate: () => `https://lineman.line.me`, webUrl: "https://lineman.line.me", pricing: { baseFare: 14, perKm: 4.5, perMin: 0.9, currency: "THB", currencySymbol: "฿", minFare: 22 } },
   ],
   IN: [
     // Metered Taxi (Mumbai)
@@ -148,16 +153,24 @@ const TAXI_SERVICES: Record<string, TaxiService[]> = {
   SG: [
     // Metered Taxi (Singapore)
     { id: "metered", name: "Metered Taxi (approx)", color: "#FFD700", logo: "🚕", type: "Metered Taxi", isMetered: true, pricing: { baseFare: 3.9, perKm: 0.7, perMin: 0.22, currency: "SGD", currencySymbol: "S$", minFare: 3.9 } },
+    // Car services
     { id: "grab", name: "Grab", color: "#00B14F", logo: "🟢", type: "Car", deepLinkTemplate: (p, d) => `https://grab.onelink.me/2695613898?af_dp=grab%3A%2F%2Fopen%3Flat%3D${p.lat}%26lng%3D${p.lng}%26destLat%3D${d.lat}%26destLng%3D${d.lng}`, webUrl: "https://www.grab.com", pricing: { baseFare: 3.0, perKm: 0.6, perMin: 0.2, currency: "SGD", currencySymbol: "S$", minFare: 5 } },
     { id: "gojek", name: "Gojek", color: "#00AA13", logo: "🟩", type: "Car", deepLinkTemplate: () => `https://www.gojek.com`, webUrl: "https://www.gojek.com", pricing: { baseFare: 2.5, perKm: 0.55, perMin: 0.18, currency: "SGD", currencySymbol: "S$", minFare: 4.5 } },
     { id: "tada", name: "TADA", color: "#FF4444", logo: "🔴", type: "Car", deepLinkTemplate: () => `https://tada.global`, webUrl: "https://tada.global", pricing: { baseFare: 2.0, perKm: 0.5, perMin: 0.15, currency: "SGD", currencySymbol: "S$", minFare: 4 } },
+    // Bike services
+    { id: "grab_bike", name: "Grab Bike", color: "#00B14F", logo: "🏍️", type: "Bike", deepLinkTemplate: (p, d) => `https://grab.onelink.me/2695613898?af_dp=grab%3A%2F%2Fopen%3Flat%3D${p.lat}%26lng%3D${p.lng}%26destLat%3D${d.lat}%26destLng%3D${d.lng}`, webUrl: "https://www.grab.com", pricing: { baseFare: 2.0, perKm: 0.4, perMin: 0.12, currency: "SGD", currencySymbol: "S$", minFare: 3.0 } },
+    { id: "gojek_bike", name: "Gojek Bike", color: "#00AA13", logo: "🏍️", type: "Bike", deepLinkTemplate: () => `https://www.gojek.com`, webUrl: "https://www.gojek.com", pricing: { baseFare: 1.8, perKm: 0.38, perMin: 0.1, currency: "SGD", currencySymbol: "S$", minFare: 2.8 } },
   ],
   MY: [
     // Metered Taxi (Kuala Lumpur)
     { id: "metered", name: "Metered Taxi (approx)", color: "#FFD700", logo: "🚕", type: "Metered Taxi", isMetered: true, pricing: { baseFare: 3, perKm: 1.25, perMin: 0.2, currency: "MYR", currencySymbol: "RM", minFare: 3 } },
+    // Car services
     { id: "grab", name: "Grab", color: "#00B14F", logo: "🟢", type: "Car", deepLinkTemplate: (p, d) => `https://grab.onelink.me/2695613898?af_dp=grab%3A%2F%2Fopen%3Flat%3D${p.lat}%26lng%3D${p.lng}%26destLat%3D${d.lat}%26destLng%3D${d.lng}`, webUrl: "https://www.grab.com", pricing: { baseFare: 1.5, perKm: 0.7, perMin: 0.15, currency: "MYR", currencySymbol: "RM", minFare: 5 } },
     { id: "maxim", name: "Maxim", color: "#FF6600", logo: "🟠", type: "Car", deepLinkTemplate: () => `https://taximaxim.com`, webUrl: "https://taximaxim.com", pricing: { baseFare: 1.0, perKm: 0.6, perMin: 0.12, currency: "MYR", currencySymbol: "RM", minFare: 4 } },
     { id: "indrive", name: "inDrive", color: "#B2FF59", logo: "🚗", type: "Car", deepLinkTemplate: () => `https://indrive.com`, webUrl: "https://indrive.com", pricing: { baseFare: 1.0, perKm: 0.55, perMin: 0.1, currency: "MYR", currencySymbol: "RM", minFare: 3.5 } },
+    // Bike services
+    { id: "grab_bike", name: "Grab Bike", color: "#00B14F", logo: "🏍️", type: "Bike", deepLinkTemplate: (p, d) => `https://grab.onelink.me/2695613898?af_dp=grab%3A%2F%2Fopen%3Flat%3D${p.lat}%26lng%3D${p.lng}%26destLat%3D${d.lat}%26destLng%3D${d.lng}`, webUrl: "https://www.grab.com", pricing: { baseFare: 1.0, perKm: 0.45, perMin: 0.08, currency: "MYR", currencySymbol: "RM", minFare: 2.5 } },
+    { id: "maxim_bike", name: "Maxim Bike", color: "#FF6600", logo: "🏍️", type: "Bike", deepLinkTemplate: () => `https://taximaxim.com`, webUrl: "https://taximaxim.com", pricing: { baseFare: 0.8, perKm: 0.4, perMin: 0.07, currency: "MYR", currencySymbol: "RM", minFare: 2.0 } },
   ],
   JP: [
     // Metered Taxi (Tokyo)
