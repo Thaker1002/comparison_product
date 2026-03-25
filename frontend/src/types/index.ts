@@ -130,7 +130,7 @@ export const DEFAULT_FILTERS: SearchFilters = {
   inStock: false,
   sortBy: "price-asc",
   viewMode: "grid",
-  searchMode: "scrape",
+  searchMode: "search",
 };
 
 // ─── UI State Types ──────────────────────────────────────────────────────────

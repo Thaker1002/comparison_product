@@ -1,8 +1,13 @@
 import React, { useState, useRef, ChangeEvent } from "react";
 import SearchBar from "./components/SearchBar";
 import TaxiTab from "./components/TaxiTab";
+import { ResultsGrid } from "./components/ResultsGrid";
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
+import { searchProducts } from './lib/api';
+import type { Product, MarketplaceSummary, SearchFilters } from './types';
+import { DEFAULT_FILTERS } from './types';
+import type { Product as ApiProduct, MarketplaceSummary as ApiSummary } from './lib/api';
 
 const COUNTRIES = [
   { code: "TH", name: "Thailand", flag: "🇹🇭" },
@@ -10,16 +15,24 @@ const COUNTRIES = [
   { code: "PH", name: "Philippines", flag: "🇵🇭" },
   { code: "MY", name: "Malaysia", flag: "🇲🇾" },
   { code: "SG", name: "Singapore", flag: "🇸🇬" },
+  { code: "IN", name: "India", flag: "🇮🇳" },
+  { code: "AE", name: "UAE / Dubai", flag: "🇦🇪" },
+  { code: "US", name: "USA", flag: "🇺🇸" },
+  { code: "CA", name: "Canada", flag: "🇨🇦" },
 ];
 const LANGUAGES = [
   { code: "en", name: "English", flag: "🇬🇧" },
   { code: "th", name: "ไทย", flag: "🇹🇭" },
   { code: "id", name: "Bahasa", flag: "🇮🇩" },
   { code: "tl", name: "Tagalog", flag: "🇵🇭" },
+  { code: "hi", name: "हिन्दी", flag: "🇮🇳" },
+  { code: "ta", name: "தமிழ்", flag: "🇮🇳" },
+  { code: "ar", name: "العربية", flag: "🇦🇪" },
+  { code: "fr", name: "Français", flag: "🇫🇷" },
 ];
 const CATEGORIES = [
-  { id: "purchase", label: "Products", icon: "🛒" },
-  { id: "taxi", label: "Taxi", icon: "🚕" },
+  { id: "purchase", label: "Purchase", icon: "🛒" },
+  { id: "ride", label: "Ride", icon: "🚕" },
   { id: "flights", label: "Flights", icon: "✈️", comingSoon: true },
 ];
 
@@ -29,16 +42,37 @@ export default function App() {
   const [language, setLanguage] = useState("en");
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
+  const [products, setProducts] = useState<ApiProduct[]>([]);
+  const [summaries, setSummaries] = useState<ApiSummary[]>([]);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [searchTimestamp, setSearchTimestamp] = useState<string | undefined>();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { t } = useTranslation();
 
-  function handleSearch() {
+  async function handleSearch() {
+    if (query.trim().length < 2 && !imagePreview) return;
     setIsLoading(true);
-    setTimeout(() => {
+    setSearchError(null);
+    try {
+      const result = await searchProducts({
+        query: query.trim(),
+        marketplaces: filters.marketplaces.length > 0 ? filters.marketplaces : undefined,
+        searchMode: filters.searchMode,
+        image: imagePreview ?? undefined,
+      });
+      setProducts(result.products);
+      setSummaries(result.summary);
+      setSearchTimestamp(result.timestamp);
+    } catch (err: any) {
+      setSearchError(err?.response?.data?.error ?? err?.message ?? 'Search failed. Is the backend running?');
+      setProducts([]);
+      setSummaries([]);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   }
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {
     e.preventDefault();
@@ -68,12 +102,17 @@ export default function App() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-indigo-600">
-              <span className="text-2xl">🛒</span>
+            <span className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-400 via-blue-500 to-indigo-600 shadow-lg shadow-blue-500/40">
+              <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth={1.8} fill="white" fillOpacity={0.25} />
+                <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth={1.8} fill="white" fillOpacity={0.25} />
+                <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth={1.8} fill="white" fillOpacity={0.25} />
+                <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth={1.8} fill="white" fillOpacity={0.25} />
+              </svg>
             </span>
             <div>
               <h1 className="text-2xl font-bold text-white">{t('appTitle')}</h1>
-              <p className="text-xs text-indigo-200">Multi-country ride & product comparison</p>
+              <p className="text-xs text-indigo-200">{t('subtitle')}</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -94,7 +133,7 @@ export default function App() {
               className={`px-4 py-2 rounded-t-lg font-medium ${activeCategory === cat.id ? "bg-white text-indigo-700" : "bg-indigo-900 text-white"}`}
               disabled={cat.comingSoon}
             >
-              <span className="mr-2">{cat.icon}</span>{t(cat.id)}
+              {t(cat.id)}
               {cat.comingSoon && <span className="ml-2 text-xs bg-yellow-300 text-yellow-900 px-2 py-0.5 rounded">Soon</span>}
             </button>
           ))}
@@ -103,60 +142,83 @@ export default function App() {
         <div className="bg-white rounded-xl shadow p-6 min-h-[400px]">
           {activeCategory === "purchase" && (
             <>
-              <SearchBar
-                query={query}
-                onQueryChange={setQuery}
-                onSearch={handleSearch}
-                filters={{ marketplaces: [], priceRange: null, minRating: null, hasDiscount: false, inStock: false, sortBy: "price-asc", viewMode: "grid", searchMode: "scrape" }}
-                onFiltersChange={() => {}}
-                isLoading={isLoading}
-              />
-              <div className="mt-4">
+              {/* Image upload row — compact, sits above search bar */}
+              <div className="flex items-center gap-3 mb-3">
                 <div
-                  className={`relative rounded-xl border-2 border-dashed p-5 text-center transition-all cursor-pointer ${imagePreview ? "border-indigo-300 bg-indigo-50/50" : "border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/30 bg-gray-50/30"}`}
+                  className="flex items-center gap-3 flex-1 rounded-xl border-2 border-dashed px-4 py-2 cursor-pointer transition-all text-sm
+                    border-gray-200 hover:border-indigo-300 bg-gray-50/50 hover:bg-indigo-50/30"
+                  onClick={() => fileInputRef.current?.click()}
                   onDragOver={e => e.preventDefault()}
                   onDrop={handleDrop}
-                  onClick={() => !imagePreview && fileInputRef.current?.click()}
                 >
                   {imagePreview ? (
-                    <div className="flex items-center gap-4">
-                      <div className="relative group">
-                        <img src={imagePreview || undefined} alt="Preview" className="h-20 w-20 rounded-lg object-cover shadow-sm ring-2 ring-indigo-200" />
-                        <div className="absolute inset-0 rounded-lg bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                        </div>
-                      </div>
-                      <div className="text-left flex-1">
-                        <p className="text-sm font-medium text-gray-700">{imageFile?.name}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{imageFile ? (imageFile.size / 1024 / 1024).toFixed(1) : ""} MB</p>
-                      </div>
-                      <button type="button" onClick={e => { e.stopPropagation(); clearImage(); }} className="rounded-lg bg-red-50 p-2 text-red-500 hover:bg-red-100 hover:text-red-600 transition-colors">
+                    <>
+                      <img src={imagePreview} alt="Preview" className="h-9 w-9 rounded-lg object-cover ring-2 ring-indigo-200 shrink-0" />
+                      <span className="text-gray-700 font-medium truncate flex-1">{imageFile?.name}</span>
+                      <button
+                        type="button"
+                        onClick={e => { e.stopPropagation(); clearImage(); }}
+                        className="text-red-400 hover:text-red-600 shrink-0 p-1"
+                      >
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       </button>
-                    </div>
+                    </>
                   ) : (
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="mx-auto h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mb-2">
-                        <svg className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <p className="text-sm text-gray-500">Drag & drop a product photo, or <span className="text-indigo-600 font-medium">browse</span></p>
-                      <p className="mt-1 text-xs text-gray-400">JPG, PNG, WebP — max 10 MB</p>
-                    </div>
+                    <>
+                      <svg className="h-5 w-5 text-indigo-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-gray-400">Upload a product photo (optional) — drag & drop or <span className="text-indigo-600 font-medium">browse</span></span>
+                    </>
                   )}
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e: ChangeEvent<HTMLInputElement>) => { if (e.target.files?.[0]) handleImageSelect(e.target.files[0]); }} />
                 </div>
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e: ChangeEvent<HTMLInputElement>) => { if (e.target.files?.[0]) handleImageSelect(e.target.files[0]); }} />
+                {imagePreview && (
+                  <button
+                    type="button"
+                    onClick={handleSearch}
+                    disabled={isLoading}
+                    className="shrink-0 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-4 py-2 rounded-xl text-sm font-semibold"
+                  >
+                    {isLoading ? "Searching…" : "Search"}
+                  </button>
+                )}
               </div>
-              {/* Results, errors, etc. would go here */}
+
+              <SearchBar
+                query={query}
+                onQueryChange={setQuery}
+                onSearch={handleSearch}
+                filters={filters}
+                onFiltersChange={(partial) => setFilters(prev => ({ ...prev, ...partial }))}
+                isLoading={isLoading}
+                resultCount={products.length > 0 ? products.length : undefined}
+                hasImage={!!imagePreview}
+              />
+              {/* Error */}
+              {searchError && (
+                <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                  {searchError}
+                </div>
+              )}
+              {/* Results */}
+              {(products.length > 0 || isLoading) && (
+                <div className="mt-4">
+                  <ResultsGrid
+                    products={products as unknown as Product[]}
+                    summaries={summaries as unknown as MarketplaceSummary[]}
+                    query={query}
+                    isLoading={isLoading}
+                    filters={filters}
+                    timestamp={searchTimestamp}
+                  />
+                </div>
+              )}
             </>
           )}
-          {activeCategory === "taxi" && (
+          {activeCategory === "ride" && (
             <TaxiTab country={country} countryName={COUNTRIES.find(c => c.code === country)?.name || "Thailand"} countryFlag={COUNTRIES.find(c => c.code === country)?.flag || "🇹🇭"} language={language} />
           )}
           {activeCategory === "flights" && (

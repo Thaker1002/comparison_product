@@ -743,7 +743,8 @@ export function ResultsGrid({
 
   // Apply client-side sorting and filtering
   const filteredProducts = useMemo(() => {
-    let result = [...products];
+    // Exclude Google Lens / non-local results
+    let result = products.filter((p) => (p as any).marketplace !== "google_lens");
 
     if (filters.hasDiscount) {
       result = result.filter(
@@ -802,14 +803,11 @@ export function ResultsGrid({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <p className="text-sm font-semibold text-foreground">
-                  Searching Thai marketplaces…
+                  Searching marketplaces…
                 </p>
-                <Badge variant="info" className="text-[10px]">
-                  Powered by Firecrawl
-                </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
-                Scraping Shopee, Lazada, JD Central, Big C and more for{" "}
+                Searching Shopee, Lazada, JD Central, Big C and more for{" "}
                 <span className="text-foreground font-medium">"{query}"</span>
               </p>
               {/* Animated progress */}
@@ -875,81 +873,6 @@ export function ResultsGrid({
   // ── Results ───────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
-      {/* Stats banner */}
-      <StatsBanner
-        products={filteredProducts}
-        query={query}
-        timestamp={timestamp}
-      />
-
-      {/* Marketplace summaries */}
-      {activeSummaries.length > 0 && (
-        <div className="space-y-3">
-          <button
-            onClick={() => setExpandSummaries((v) => !v)}
-            className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors duration-200 group w-full"
-          >
-            <div className="h-px flex-1 bg-border/40 group-hover:bg-primary/20 transition-colors" />
-            <div className="flex items-center gap-1.5 shrink-0">
-              <ShoppingBag className="w-4 h-4 text-primary" />
-              Marketplace Breakdown
-              <Badge variant="secondary" className="text-[10px]">
-                {activeSummaries.length}
-              </Badge>
-              {expandSummaries ? (
-                <ChevronUp className="w-4 h-4 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-muted-foreground" />
-              )}
-            </div>
-            <div className="h-px flex-1 bg-border/40 group-hover:bg-primary/20 transition-colors" />
-          </button>
-
-          {expandSummaries && (
-            <div
-              className={cn(
-                "grid gap-3",
-                activeSummaries.length <= 3
-                  ? `grid-cols-${activeSummaries.length}`
-                  : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6",
-              )}
-            >
-              {activeSummaries
-                .sort(
-                  (a, b) => (a.minPrice ?? Infinity) - (b.minPrice ?? Infinity),
-                )
-                .map((s, i) => (
-                  <SummaryCard key={s.marketplaceId} summary={s} rank={i} />
-                ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Price chart */}
-      {activeSummaries.length >= 2 && (
-        <div className="space-y-3">
-          <button
-            onClick={() => setShowChart((v) => !v)}
-            className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors duration-200 group w-full"
-          >
-            <div className="h-px flex-1 bg-border/40 group-hover:bg-primary/20 transition-colors" />
-            <div className="flex items-center gap-1.5 shrink-0">
-              <BarChart2 className="w-4 h-4 text-primary" />
-              Price Chart
-              {showChart ? (
-                <ChevronUp className="w-4 h-4 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-muted-foreground" />
-              )}
-            </div>
-            <div className="h-px flex-1 bg-border/40 group-hover:bg-primary/20 transition-colors" />
-          </button>
-
-          {showChart && <PriceChart summaries={activeSummaries} />}
-        </div>
-      )}
-
       {/* Main products section with tabs */}
       <Tabs defaultValue="grid" className="space-y-4">
         <div className="flex items-center justify-between">

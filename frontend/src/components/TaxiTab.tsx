@@ -93,13 +93,6 @@ interface TaxiService {
   isMetered?: boolean;
 }
 
-// Simple driver availability heuristic (rush hours: 7-10am, 5-9pm local time)
-function getMeteredAvailability(): "Normal" | "Low" {
-  const hour = new Date().getHours();
-  if ((hour >= 7 && hour <= 10) || (hour >= 17 && hour <= 21)) return "Low";
-  return "Normal";
-}
-
 // ─── Country map defaults ─────────────────────────────────────────────────────
 
 const COUNTRY_DEFAULTS: Record<string, { center: LatLng; zoom: number }> = {
@@ -410,7 +403,7 @@ export default function TaxiTab({ country, countryName, countryFlag, language }:
           setDropoffAddress(address);
         }
       },
-      (err) => {
+      (_err) => {
         setGeoError("Unable to get your location. Please allow location access in your browser settings.");
       },
       { enableHighAccuracy: true, timeout: 10000 }
@@ -434,10 +427,10 @@ export default function TaxiTab({ country, countryName, countryFlag, language }:
     <div className="py-4">
       <div className="mb-4">
         <p className="text-sm text-gray-500">
-          {countryFlag} {t('taxi.subtitle', { countryName })}
+          {countryFlag} {t('taxiTab.subtitle', { countryName })}
         </p>
         <div className="mt-2 flex flex-wrap gap-2 items-center">
-          <span className="text-xs text-gray-600 font-semibold">{t('taxi.selectRideType')}</span>
+          <span className="text-xs text-gray-600 font-semibold">{t('taxiTab.selectRideType')}</span>
           {country === "IN" ? (
             <>
               <button onClick={() => setRideType("Car")}
@@ -466,7 +459,7 @@ export default function TaxiTab({ country, countryName, countryFlag, language }:
             <div>
               <label className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-0.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-green-500 inline-block" />
-                {t('taxi.pickup')}
+                {t('taxiTab.pickup')}
               </label>
               <button
                 type="button"
@@ -474,7 +467,7 @@ export default function TaxiTab({ country, countryName, countryFlag, language }:
                 className="mb-1 text-xs font-medium text-indigo-500 hover:text-indigo-700 flex items-center gap-1 transition-colors"
                 style={{ WebkitTapHighlightColor: "transparent" }}
               >
-                📍 {t('taxi.useMyLocation')}
+                📍 {t('taxiTab.useMyLocation')}
               </button>
               <div className="relative">
                 <input
@@ -529,7 +522,7 @@ export default function TaxiTab({ country, countryName, countryFlag, language }:
             <div>
               <label className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                 <span className="h-2.5 w-2.5 rounded-full bg-red-500 inline-block" />
-                {t('taxi.dropoff')}
+                {t('taxiTab.dropoff')}
               </label>
               <div className="relative">
                 {geoError && (
@@ -628,7 +621,7 @@ export default function TaxiTab({ country, countryName, countryFlag, language }:
       {fareEstimates.length > 0 ? (
         <div className="mt-6">
           <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <span>💰</span> {t('taxi.fareComparison')}
+            <span>💰</span> {t('taxiTab.fareComparison')}
             <span className="text-[10px] font-normal text-gray-400 ml-1">
               ({(distance! * 1.3).toFixed(1)} km &middot; ~{fareEstimates[0].estimatedMinutes} min)
             </span>
@@ -648,7 +641,7 @@ export default function TaxiTab({ country, countryName, countryFlag, language }:
                 <div className="flex items-center gap-2">
                   <span className="text-xl">🚕</span>
                   <div>
-                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">{t('taxi.meterTaxi')}</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">{t('taxiTab.meterTaxi')}</p>
                     <p className="text-base font-bold text-amber-700">
                       {formatFare(meteredEst.estimatedLow, p.currencySymbol, p.currency)}
                       <span className="text-xs font-normal text-gray-400 ml-1">– {formatFare(meteredEst.estimatedHigh, p.currencySymbol, p.currency)}</span>
@@ -659,7 +652,7 @@ export default function TaxiTab({ country, countryName, countryFlag, language }:
                 <div className="flex items-center gap-2">
                   <span className="text-xl">{cheapestApp.service.logo}</span>
                   <div>
-                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">{cheapestApp.service.name} ({t('taxi.cheapestApp')})</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">{cheapestApp.service.name} ({t('taxiTab.cheapestApp')})</p>
                     <p className="text-base font-bold text-indigo-700">
                       {formatFare(cheapestApp.estimatedLow, cheapestApp.service.pricing.currencySymbol, cheapestApp.service.pricing.currency)}
                       <span className="text-xs font-normal text-gray-400 ml-1">– {formatFare(cheapestApp.estimatedHigh, cheapestApp.service.pricing.currencySymbol, cheapestApp.service.pricing.currency)}</span>
@@ -669,11 +662,11 @@ export default function TaxiTab({ country, countryName, countryFlag, language }:
                 <div className="ml-auto">
                   {appSavings > 0 ? (
                     <p className="text-xs font-bold text-green-700 bg-green-100 rounded-full px-3 py-1">
-                      💰 {t('taxi.appSaves', { amount: formatFare(appSavings, p.currencySymbol, p.currency) })}
+                      💰 {t('taxiTab.appSaves', { amount: formatFare(appSavings, p.currencySymbol, p.currency) })}
                     </p>
                   ) : (
                     <p className="text-xs font-bold text-amber-700 bg-amber-100 rounded-full px-3 py-1">
-                      🚕 {t('taxi.meterCheaper', { amount: formatFare(-appSavings, p.currencySymbol, p.currency) })}
+                      🚕 {t('taxiTab.meterCheaper', { amount: formatFare(-appSavings, p.currencySymbol, p.currency) })}
                     </p>
                   )}
                 </div>
@@ -773,7 +766,7 @@ export default function TaxiTab({ country, countryName, countryFlag, language }:
       ) : (
         <div className="mt-6">
           <h3 className="text-sm font-semibold text-gray-700 mb-3">
-            {t('taxi.availableServices', { countryName })}
+            {t('taxiTab.availableServices', { countryName })}
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {services.map((svc) => (

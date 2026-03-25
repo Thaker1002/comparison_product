@@ -1,8 +1,9 @@
 {
   "appTitle": "เปรียบเทียบ โดย Thaker",
+  "subtitle": "เปรียบเทียบราคาและการเดินทางหลายประเทศ",
   "searchPlaceholder": "ค้นหาสินค้า (เช่น Samsung Galaxy S24, iPhone 16 Pro)...",
   "purchase": "ซื้อ",
-  "taxi": "แท็กซี่",
+  "ride": "เดินทาง",
   "flights": "เที่ยวบิน",
   "best": "ดีที่สุด",
   "price": "ราคา",
@@ -52,7 +53,7 @@
     "mode": "โหมด",
     "discountedOnly": "เฉพาะสินค้าลดราคา"
   },
-  "taxi": {
+  "taxiTab": {
     "subtitle": "เปรียบเทียบค่าโดยสารในแอปรถรับจ้างของ {{countryName}}",
     "selectRideType": "เลือกประเภทการเดินทาง:",
     "pickup": "จุดรับ",
@@ -65,5 +66,4 @@
     "meterCheaper": "มิเตอร์ถูกกว่า {{amount}}!",
     "availableServices": "บริการรถรับจ้างใน {{countryName}}"
   }
-}
 }

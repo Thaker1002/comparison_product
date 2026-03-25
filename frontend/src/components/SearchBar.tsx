@@ -1,15 +1,11 @@
-export default SearchBar;
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Search,
   X,
-  SlidersHorizontal,
   LayoutGrid,
   List,
   ArrowUpDown,
-  Zap,
-  Globe,
   ChevronDown,
   Check,
   Filter,
@@ -77,6 +73,7 @@ interface SearchBarProps {
   isLoading?: boolean;
   resultCount?: number;
   className?: string;
+  hasImage?: boolean;
 }
 
 // Voice search hook
@@ -126,13 +123,13 @@ export function SearchBar({
   isLoading = false,
   resultCount,
   className,
+  hasImage = false,
 }: SearchBarProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
   const [showSort, setShowSort] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  // Assume filters.language or filters.lang is the BCP-47 code (e.g. 'en', 'th', 'hi', etc.)
-  const lang = (filters.language || filters.lang || 'en').toLowerCase();
+  const lang = (i18n.language || 'en').toLowerCase();
   const { start: startVoice, stop: stopVoice, listening } = useVoiceSearch({
     onResult: (text) => onQueryChange(text),
     lang,
@@ -154,53 +151,29 @@ export function SearchBar({
     return () => document.removeEventListener("mousedown", handle);
   }, []);
 
+  const toggleMarketplace = (id: MarketplaceId) => {
+    const current = filters.marketplaces;
+    const updated = current.includes(id) ? current.filter(m => m !== id) : [...current, id];
+    onFiltersChange({ marketplaces: updated });
+  };
+
+  const toggleAllMarketplaces = () => {
+    if (allSelected) {
+      onFiltersChange({ marketplaces: [] });
+    } else {
+      onFiltersChange({ marketplaces: MARKETPLACES.map(m => m.id) });
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && query.trim().length >= 2) onSearch();
+    if (e.key === "Enter" && (query.trim().length >= 2 || hasImage)) onSearch();
     if (e.key === "Escape") {
       onQueryChange("");
       inputRef.current?.blur();
     }
   };
   return (
-    <div className={cn("relative flex items-center gap-2", className)}>
-      <div className="flex-1 relative">
-        <input
-          ref={inputRef}
-          type="text"
-          className="w-full rounded-lg border border-gray-200 py-2 px-4 pr-14 text-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
-          placeholder={t('searchBar.placeholder1')}
-          value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          aria-label={t('searchBar.ariaLabel')}
-          disabled={isLoading}
-          style={{ paddingRight: '3rem' }}
-        />
-        {/* Voice search mic button - Material Design icon, fully right-aligned */}
-        <button
-          type="button"
-          className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 transition-colors ${listening ? "animate-pulse text-indigo-600" : ""}`}
-          onClick={listening ? stopVoice : startVoice}
-          aria-label={listening ? t('searchBar.stopVoice') : t('searchBar.startVoice')}
-          tabIndex={-1}
-        >
-          {/* Modern Material Design mic icon */}
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-            <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a1 1 0 1 1 2 0 7 7 0 0 1-6 6.92V21a1 1 0 1 1-2 0v-2.08A7 7 0 0 1 5 12a1 1 0 1 1 2 0 5 5 0 0 0 10 0z" />
-          </svg>
-        </button>
-        {query && (
-          <button
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
-            onClick={() => onQueryChange("")}
-            tabIndex={-1}
-            aria-label={t('searchBar.clearSearch')}
-            type="button"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+    <div className={cn("flex flex-col gap-3", className)}>
       <div className="flex gap-2">
         {/* Search input */}
         <div className="relative flex-1 group">
@@ -250,40 +223,20 @@ export function SearchBar({
               </button>
             )}
 
-            {/* Search mode toggle */}
-            <div className="flex items-center pr-1 pl-1 border-l border-border/40 ml-1">
-              <button
-                onClick={() =>
-                  onFiltersChange({
-                    searchMode:
-                      filters.searchMode === "scrape" ? "search" : "scrape",
-                  })
-                }
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all duration-200",
-                  filters.searchMode === "scrape"
-                    ? "bg-primary/15 text-primary border border-primary/25"
-                    : "bg-secondary text-muted-foreground hover:text-foreground border border-transparent",
-                )}
-                title={
-                  filters.searchMode === "scrape"
-                    ? t('searchBar.scrapeToWeb')
-                    : t('searchBar.webToScrape')
-                }
-              >
-                {filters.searchMode === "scrape" ? (
-                  <>
-                    <Globe className="w-3 h-3" />
-                    {t('searchBar.scrape')}
-                  </>
-                ) : (
-                  <>
-                    <Zap className="w-3 h-3" />
-                    {t('searchBar.search')}
-                  </>
-                )}
-              </button>
-            </div>
+            {/* Mic button */}
+            <button
+              type="button"
+              onClick={listening ? stopVoice : startVoice}
+              className={cn(
+                "px-2 border-l border-border/40 ml-1 text-muted-foreground hover:text-primary transition-colors duration-200",
+                listening && "text-primary animate-pulse",
+              )}
+              aria-label={listening ? t('searchBar.stopVoice') : t('searchBar.startVoice')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a1 1 0 1 1 2 0 7 7 0 0 1-6 6.92V21a1 1 0 1 1-2 0v-2.08A7 7 0 0 1 5 12a1 1 0 1 1 2 0 5 5 0 0 0 10 0z" />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -292,7 +245,7 @@ export function SearchBar({
           variant="gradient"
           size="lg"
           onClick={onSearch}
-          disabled={isLoading || query.trim().length < 2}
+          disabled={isLoading || (query.trim().length < 2 && !hasImage)}
           loading={isLoading}
           className="rounded-2xl px-6 shrink-0 gap-2"
         >
@@ -451,7 +404,7 @@ export function SearchBar({
         <div className="glass-card rounded-2xl border border-border/50 p-4 animate-fade-in space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-primary" />
+              <Filter className="w-4 h-4 text-primary" />
                 <span className="text-sm font-semibold">{t('searchBar.advancedFilters')}</span>
             </div>
             <Button
@@ -501,39 +454,6 @@ export function SearchBar({
             </div>
           </div>
 
-          {/* Search mode explanation */}
-          <div className="rounded-xl bg-secondary/40 border border-border/40 p-3">
-            <p className="text-xs font-semibold mb-1.5 flex items-center gap-1.5">
-              {filters.searchMode === "scrape" ? (
-                <>
-                  <Globe className="w-3.5 h-3.5 text-primary" /> Direct Scrape
-                  Mode
-                </>
-              ) : (
-                <>
-                  <Zap className="w-3.5 h-3.5 text-yellow-400" /> Web Search
-                  Mode
-                </>
-              )}
-            </p>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              {filters.searchMode === "scrape"
-                ? t('searchBar.scrapeModeDesc')
-                : t('searchBar.webModeDesc')}
-            </p>
-            <button
-              onClick={() =>
-                onFiltersChange({
-                  searchMode:
-                    filters.searchMode === "scrape" ? "search" : "scrape",
-                })
-              }
-              className="mt-2 text-[11px] text-primary font-medium hover:underline"
-            >
-              {t('searchBar.switchTo')} {filters.searchMode === "scrape" ? t('searchBar.webSearch') : t('searchBar.directScrape')} {t('searchBar.mode')}
-            </button>
-          </div>
-
           {/* Additional filter options */}
           <div className="flex items-center gap-4 flex-wrap">
             <label className="flex items-center gap-2 cursor-pointer group">
@@ -565,3 +485,5 @@ export function SearchBar({
     </div>
   );
 }
+
+export default SearchBar;

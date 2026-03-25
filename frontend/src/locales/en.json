@@ -1,8 +1,9 @@
 {
   "appTitle": "Compare by Thaker",
+  "subtitle": "Multi-country ride & product comparison",
   "searchPlaceholder": "Search product (e.g., Samsung Galaxy S24, iPhone 16 Pro)...",
   "purchase": "Purchase",
-  "taxi": "Taxi",
+  "ride": "Ride",
   "flights": "Flights",
   "best": "BEST",
   "price": "Price",
@@ -52,7 +53,7 @@
     "mode": "mode",
     "discountedOnly": "Discounted only"
   },
-  "taxi": {
+  "taxiTab": {
     "subtitle": "Compare ride fares across {{countryName}} ride-hailing apps",
     "selectRideType": "Select ride type:",
     "pickup": "Pickup",
@@ -65,5 +66,4 @@
     "meterCheaper": "Meter is {{amount}} cheaper!",
     "availableServices": "Available ride services in {{countryName}}"
   }
-}
 }

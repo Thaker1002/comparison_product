@@ -305,7 +305,11 @@ export function ProductCard({
   };
 
   const handleSelect = () => {
-    onSelect?.(product);
+    if (onSelect) {
+      onSelect(product);
+    } else {
+      openInNewTab(safeUrl);
+    }
   };
 
   // ── List View ───────────────────────────────────────────────────────────────
