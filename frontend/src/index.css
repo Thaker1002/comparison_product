@@ -55,9 +55,3 @@ body {
   box-shadow: 0 8px 25px -5px rgba(0,0,0,0.1), 0 4px 10px -5px rgba(0,0,0,0.04);
 }
 
-/* Leaflet marker color overrides */
-.pickup-marker { filter: hue-rotate(100deg) brightness(1.2); }
-.dropoff-marker { filter: hue-rotate(-30deg) brightness(1.1); }
-
-/* Leaflet container fix */
-.leaflet-container { font-family: inherit; }

@@ -17,8 +17,6 @@ import {
   Award,
   ShoppingBag,
   AlertCircle,
-  ChevronDown,
-  ChevronUp,
   ArrowUpDown,
   ExternalLink,
   Star,
@@ -33,7 +31,7 @@ import {
   getPriceTierColor,
 } from "@/lib/utils";
 import { ProductCard, ProductCardSkeleton } from "@/components/ProductCard";
-import { Badge } from "@/components/ui/badge";
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { Product, MarketplaceSummary, SearchFilters } from "@/types";
 
@@ -45,7 +43,7 @@ interface SummaryCardProps {
   rank: number;
 }
 
-function SummaryCard({ summary, rank }: SummaryCardProps) {
+export function SummaryCard({ summary, rank }: SummaryCardProps) {
   const bgClass = getMarketplaceBgClass(summary.marketplaceId);
   const color = getMarketplaceColor(summary.marketplaceId);
 
@@ -172,7 +170,7 @@ const CustomTooltip = ({
   );
 };
 
-function PriceChart({ summaries }: PriceChartProps) {
+export function PriceChart({ summaries }: PriceChartProps) {
   const data = summaries
     .filter((s) => s.count > 0 && s.minPrice != null)
     .map((s) => ({
@@ -629,7 +627,7 @@ interface StatsBannerProps {
   timestamp?: string;
 }
 
-function StatsBanner({ products }: StatsBannerProps) {
+export function StatsBanner({ products }: StatsBannerProps) {
   if (products.length === 0) return null;
 
   const prices = products.map((p) => p.price).filter(Boolean);
@@ -732,14 +730,12 @@ const SKELETONS = Array.from({ length: 6 });
 
 export function ResultsGrid({
   products,
-  summaries,
+  summaries: _summaries,
   query,
   isLoading = false,
   filters,
-  timestamp,
 }: ResultsGridProps) {
-  const [expandSummaries, setExpandSummaries] = useState(true);
-  const [showChart, setShowChart] = useState(true);
+
 
   // Apply client-side sorting and filtering
   const filteredProducts = useMemo(() => {
@@ -785,7 +781,6 @@ export function ResultsGrid({
   const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
   const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
 
-  const activeSummaries = summaries.filter((s) => s.count > 0);
 
   // ── Loading state ─────────────────────────────────────────────────────────
   if (isLoading) {

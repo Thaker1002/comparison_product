@@ -36,36 +36,9 @@ function useVoiceSearchAddress({ onResult, lang }: { onResult: (text: string) =>
 }
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { GoogleMap, useLoadScript, Marker, Polyline } from "@react-google-maps/api";
 
-// Fix default marker icons in Leaflet + bundlers
-const defaultIcon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
-
-const pickupIcon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  className: "pickup-marker",
-});
-
-const dropoffIcon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  className: "dropoff-marker",
-});
-
-L.Marker.prototype.options.icon = defaultIcon;
+const GOOGLE_MAPS_API_KEY = "AIzaSyAhlQd0NyVC-ex0G5ySR91US0GMcXwy2NQ";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -261,19 +234,6 @@ async function reverseGeocode(lat: number, lng: number, lang: string): Promise<s
 
 // ─── Map helper components ────────────────────────────────────────────────────
 
-function MapClickHandler({ onMapClick }: { onMapClick: (latlng: LatLng) => void }) {
-  useMapEvents({ click(e) { onMapClick({ lat: e.latlng.lat, lng: e.latlng.lng }); } });
-  return null;
-}
-
-function FlyToLocation({ center, zoom }: { center: LatLng; zoom: number }) {
-  const map = useMap();
-  useEffect(() => {
-    map.flyTo([center.lat, center.lng], zoom, { duration: 1 });
-  }, [center.lat, center.lng, zoom, map]);
-  return null;
-}
-
 // ─── Haversine distance ───────────────────────────────────────────────────────
 
 function haversineKm(a: LatLng, b: LatLng): number {
@@ -294,6 +254,7 @@ interface TaxiTabProps {
 }
 
 export default function TaxiTab({ country, countryName, countryFlag, language }: TaxiTabProps) {
+  const { isLoaded: googleMapsLoaded } = useLoadScript({ googleMapsApiKey: GOOGLE_MAPS_API_KEY });
   // Use BCP-47 language code for speech recognition
   const lang = (language || 'en').toLowerCase();
   const { t } = useTranslation();
@@ -432,8 +393,8 @@ export default function TaxiTab({ country, countryName, countryFlag, language }:
     setDropoffAddress(tmpAddr);
   };
 
-  const routeLine: [number, number][] = pickupCoord && dropoffCoord
-    ? [[pickupCoord.lat, pickupCoord.lng], [dropoffCoord.lat, dropoffCoord.lng]]
+  const routeLine: google.maps.LatLngLiteral[] = pickupCoord && dropoffCoord
+    ? [{ lat: pickupCoord.lat, lng: pickupCoord.lng }, { lat: dropoffCoord.lat, lng: dropoffCoord.lng }]
     : [];
 
   return (
@@ -608,24 +569,44 @@ export default function TaxiTab({ country, countryName, countryFlag, language }:
             className="rounded-2xl overflow-hidden shadow-lg shadow-black/5 border border-white/80"
             style={{ height: "clamp(220px, 35vw, 400px)" }}
           >
-            <MapContainer
-              center={[defaults.center.lat, defaults.center.lng]}
-              zoom={defaults.zoom}
-              style={{ height: "100%", width: "100%" }}
-              zoomControl={true}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://carto.com/">CARTO</a> &middot; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-              />
-              <MapClickHandler onMapClick={handleMapClick} />
-              <FlyToLocation center={mapCenter} zoom={defaults.zoom} />
-              {pickupCoord && <Marker position={[pickupCoord.lat, pickupCoord.lng]} icon={pickupIcon} />}
-              {dropoffCoord && <Marker position={[dropoffCoord.lat, dropoffCoord.lng]} icon={dropoffIcon} />}
-              {routeLine.length === 2 && (
-                <Polyline positions={routeLine} pathOptions={{ color: "#6366f1", weight: 3, dashArray: "8 8" }} />
-              )}
-            </MapContainer>
+            {googleMapsLoaded ? (
+              <GoogleMap
+                mapContainerStyle={{ height: "100%", width: "100%" }}
+                center={{ lat: mapCenter.lat, lng: mapCenter.lng }}
+                zoom={defaults.zoom}
+                onClick={(e) => {
+                  if (e.latLng) handleMapClick({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+                }}
+                options={{
+                  streetViewControl: false,
+                  mapTypeControl: false,
+                  fullscreenControl: false,
+                }}
+              >
+                {pickupCoord && (
+                  <Marker
+                    position={pickupCoord}
+                    label={{ text: "A", color: "white", fontWeight: "bold", fontSize: "13px" }}
+                  />
+                )}
+                {dropoffCoord && (
+                  <Marker
+                    position={dropoffCoord}
+                    label={{ text: "B", color: "white", fontWeight: "bold", fontSize: "13px" }}
+                  />
+                )}
+                {routeLine.length === 2 && (
+                  <Polyline
+                    path={routeLine}
+                    options={{ strokeColor: "#6366f1", strokeWeight: 3, strokeOpacity: 0.8 }}
+                  />
+                )}
+              </GoogleMap>
+            ) : (
+              <div className="flex items-center justify-center h-full bg-gray-100 text-gray-400 text-sm">
+                Loading map…
+              </div>
+            )}
           </div>
         </div>
       </div>
