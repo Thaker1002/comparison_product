@@ -1,4 +1,4 @@
-import React, { useState, useRef, ChangeEvent } from "react";
+import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 import SearchBar from "./components/SearchBar";
 import TaxiTab from "./components/TaxiTab";
 import { ResultsGrid } from "./components/ResultsGrid";
@@ -36,10 +36,16 @@ const CATEGORIES = [
   { id: "flights", label: "Flights", icon: "✈️", comingSoon: true },
 ];
 
+const COUNTRY_DEFAULT_LANGUAGE: Record<string, string> = {
+  TH: "th", ID: "id", PH: "tl", MY: "en",
+  SG: "en", IN: "hi", AE: "ar", US: "en", CA: "en",
+};
+
 export default function App() {
   const [activeCategory, setActiveCategory] = useState("purchase");
   const [country, setCountry] = useState("TH");
   const [language, setLanguage] = useState("en");
+  const [geoStatus, setGeoStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
@@ -52,7 +58,35 @@ export default function App() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { t } = useTranslation();
 
-  async function handleSearch() {
+  // Auto-detect country & language from device GPS on first load
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    setGeoStatus("loading");
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.latitude}&lon=${coords.longitude}`,
+            { headers: { "Accept-Language": "en" } }
+          );
+          const data = await res.json();
+          const cc = (data?.address?.country_code as string | undefined)?.toUpperCase();
+          const supported = COUNTRIES.find(c => c.code === cc);
+          if (supported) {
+            setCountry(supported.code);
+            const lang = COUNTRY_DEFAULT_LANGUAGE[supported.code] ?? "en";
+            setLanguage(lang);
+            i18n.changeLanguage(lang);
+          }
+          setGeoStatus("done");
+        } catch {
+          setGeoStatus("error");
+        }
+      },
+      () => setGeoStatus("error"),
+      { timeout: 8000 }
+    );
+  }, []);
     if (query.trim().length < 2 && !imagePreview) return;
     setIsLoading(true);
     setSearchError(null);
@@ -115,7 +149,16 @@ export default function App() {
               <p className="text-xs text-indigo-200">{t('subtitle')}</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            {geoStatus === "loading" && (
+              <span title="Detecting location…" className="text-indigo-300 text-xs flex items-center gap-1">
+                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+                Locating…
+              </span>
+            )}
+            {geoStatus === "done" && (
+              <span title="Location detected" className="text-green-400 text-xs">📍</span>
+            )}
             <select value={country} onChange={e => setCountry(e.target.value)} className="rounded px-2 py-1">
               {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.name}</option>)}
             </select>
