@@ -1,13 +1,20 @@
 import React, { useState, useRef, ChangeEvent, useEffect } from "react";
+import axios from "axios";
 import SearchBar from "./components/SearchBar";
 import TaxiTab from "./components/TaxiTab";
 import { ResultsGrid } from "./components/ResultsGrid";
+import AuthModal from "./components/AuthModal";
+import AdminDashboard from "./components/AdminDashboard";
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
 import { searchProducts } from './lib/api';
 import type { Product, MarketplaceSummary, SearchFilters } from './types';
 import { DEFAULT_FILTERS } from './types';
 import type { Product as ApiProduct, MarketplaceSummary as ApiSummary } from './lib/api';
+
+interface AuthUser {
+  id: number; name: string; email: string; mobile: string; notify_via: string; isAdmin?: boolean;
+}
 
 const COUNTRIES = [
   { code: "TH", name: "Thailand", flag: "🇹🇭" },
@@ -47,6 +54,32 @@ export default function App() {
   const [language, setLanguage] = useState("en");
   const [geoStatus, setGeoStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [query, setQuery] = useState("");
+
+  // ─── Auth ─────────────────────────────────────────────────────────────────
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
+    try { return JSON.parse(localStorage.getItem("authUser") || "null"); } catch { return null; }
+  });
+  const [authToken, setAuthToken] = useState<string>(() => localStorage.getItem("authToken") || "");
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  function handleAuth(user: AuthUser, token: string) {
+    setAuthUser(user);
+    setAuthToken(token);
+    localStorage.setItem("authUser", JSON.stringify(user));
+    localStorage.setItem("authToken", token);
+  }
+  function handleLogout() {
+    setAuthUser(null);
+    setAuthToken("");
+    localStorage.removeItem("authUser");
+    localStorage.removeItem("authToken");
+  }
+  function trackUsage(event_type: string, q: string, results_count: number) {
+    if (!authToken) return;
+    axios.post("/api/auth/track", { event_type, query: q, country, results_count }, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    }).catch(() => {});
+  }
   const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
   const [products, setProducts] = useState<ApiProduct[]>([]);
@@ -87,6 +120,8 @@ export default function App() {
       { timeout: 8000 }
     );
   }, []);
+
+  async function handleSearch() {
     if (query.trim().length < 2 && !imagePreview) return;
     setIsLoading(true);
     setSearchError(null);
@@ -100,6 +135,7 @@ export default function App() {
       setProducts(result.products);
       setSummaries(result.summary);
       setSearchTimestamp(result.timestamp);
+      trackUsage(imagePreview ? "image_search" : "search", query.trim(), result.products.length);
     } catch (err: any) {
       setSearchError(err?.response?.data?.error ?? err?.message ?? 'Search failed. Is the backend running?');
       setProducts([]);
@@ -132,6 +168,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#181728]">
+      {/* Auth gate */}
+      {!authUser && <AuthModal onAuth={handleAuth} />}
+      {/* Admin dashboard overlay */}
+      {showAdmin && <AdminDashboard onClose={() => setShowAdmin(false)} />}
+
       <div className="max-w-6xl mx-auto px-4 pt-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -149,7 +190,7 @@ export default function App() {
               <p className="text-xs text-indigo-200">{t('subtitle')}</p>
             </div>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center flex-wrap">
             {geoStatus === "loading" && (
               <span title="Detecting location…" className="text-indigo-300 text-xs flex items-center gap-1">
                 <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
@@ -165,6 +206,20 @@ export default function App() {
             <select value={language} onChange={e => { setLanguage(e.target.value); i18n.changeLanguage(e.target.value); }} className="rounded px-2 py-1">
               {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.flag} {l.name}</option>)}
             </select>
+            {/* User info */}
+            {authUser && (
+              <div className="flex items-center gap-2 ml-1">
+                <span className="text-xs text-indigo-200 hidden sm:block">👋 {authUser.name}</span>
+                {authUser.isAdmin && (
+                  <button onClick={() => setShowAdmin(true)} className="text-xs bg-yellow-400 text-yellow-900 font-semibold px-2 py-1 rounded-lg hover:bg-yellow-300">
+                    Admin
+                  </button>
+                )}
+                <button onClick={handleLogout} className="text-xs text-indigo-300 hover:text-white border border-indigo-700 px-2 py-1 rounded-lg">
+                  Sign out
+                </button>
+              </div>
+            )}
           </div>
         </div>
         {/* Tabs */}

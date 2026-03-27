@@ -16,6 +16,7 @@ import {
   isPlausibleShopeeUrl,
 } from "./url-validation.js";
 import { COUNTRIES, getCountry, listCountries } from "./countries.js";
+import { registerAuthRoutes } from "./auth.js";
 
 dotenv.config();
 
@@ -1700,6 +1701,9 @@ if (fs.existsSync(distPath)) {
     res.sendFile(path.join(distPath, "index.html"));
   });
 }
+
+// ─── Auth & Admin routes ─────────────────────────────────────────────────────
+registerAuthRoutes(app);
 
 app.listen(PORT, () => {
   console.log(`\n🛒 Thaker's Quest — Backend API`);
