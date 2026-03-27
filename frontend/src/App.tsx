@@ -2,6 +2,7 @@ import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 import axios from "axios";
 import SearchBar from "./components/SearchBar";
 import TaxiTab from "./components/TaxiTab";
+import FlightTab from "./components/FlightTab";
 import { ResultsGrid } from "./components/ResultsGrid";
 import AuthModal from "./components/AuthModal";
 import AdminDashboard from "./components/AdminDashboard";
@@ -40,7 +41,7 @@ const LANGUAGES = [
 const CATEGORIES = [
   { id: "purchase", label: "Purchase", icon: "🛒" },
   { id: "ride", label: "Ride", icon: "🚕" },
-  { id: "flights", label: "Flights", icon: "✈️", comingSoon: true },
+  { id: "flights", label: "Flights", icon: "✈️", comingSoon: false },
 ];
 
 const COUNTRY_DEFAULT_LANGUAGE: Record<string, string> = {
@@ -320,29 +321,8 @@ export default function App() {
             <TaxiTab country={country} countryName={COUNTRIES.find(c => c.code === country)?.name || "Thailand"} countryFlag={COUNTRIES.find(c => c.code === country)?.flag || "🇹🇭"} language={language} />
           )}
           {activeCategory === "flights" && (
-            <div className="py-8 text-center">
-              <div className="mb-6">
-                <p className="text-sm text-gray-500">{COUNTRIES.find(c => c.code === country)?.flag} Compare flight prices across airlines and booking platforms</p>
-              </div>
-              <div className="mt-4 rounded-2xl border border-amber-100 bg-amber-50/50 p-8 text-center">
-                <div className="mx-auto h-14 w-14 rounded-full bg-amber-100 flex items-center justify-center mb-4">
-                  <span className="text-2xl">✈️</span>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-1">Flights — Coming Soon</h3>
-                <p className="text-sm text-gray-500 max-w-md mx-auto">Compare flights across Google Flights, Skyscanner, Kayak, Expedia and more. Search by origin, destination and dates to find the cheapest fares.</p>
-                <div className="flex flex-wrap justify-center gap-2 mt-4">
-                  {["Google Flights", "Skyscanner", "Kayak", "Expedia", "Momondo", "Kiwi.com"].map(app => (
-                    <span key={app} className="rounded-full bg-white border border-gray-200 px-3 py-1 text-xs font-medium text-gray-500 shadow-sm">{app}</span>
-                  ))}
-                </div>
-              </div>
-              <footer className="mt-16 mb-8 text-center">
-                <div className="inline-flex items-center gap-2 text-xs text-gray-400">
-                  <span className="inline-block h-px w-8 bg-gray-200" />
-                  compare by Thakers &middot; For personal use only
-                  <span className="inline-block h-px w-8 bg-gray-200" />
-                </div>
-              </footer>
+            <div className="py-4">
+              <FlightTab />
             </div>
           )}
         </div>

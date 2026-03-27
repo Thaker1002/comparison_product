@@ -17,6 +17,7 @@ import {
 } from "./url-validation.js";
 import { COUNTRIES, getCountry, listCountries } from "./countries.js";
 import { registerAuthRoutes } from "./auth.js";
+import { registerFlightRoutes } from "./flights.js";
 
 dotenv.config();
 
@@ -1704,6 +1705,9 @@ if (fs.existsSync(distPath)) {
 
 // ─── Auth & Admin routes ─────────────────────────────────────────────────────
 registerAuthRoutes(app);
+
+// ─── Flight routes ───────────────────────────────────────────────────────────
+registerFlightRoutes(app);
 
 app.listen(PORT, () => {
   console.log(`\n🛒 Thaker's Quest — Backend API`);
