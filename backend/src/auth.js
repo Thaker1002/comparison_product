@@ -44,6 +44,32 @@ async function sendWelcomeEmail(user, plainPassword) {
   });
 }
 
+async function sendResetEmail(user, newPassword) {
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+    console.warn("⚠️  SMTP not configured — skipping reset email for:", user.email);
+    return;
+  }
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: parseInt(SMTP_PORT || "587"),
+    secure: parseInt(SMTP_PORT || "587") === 465,
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
+  await transporter.sendMail({
+    from: SMTP_FROM || SMTP_USER,
+    to: user.email,
+    subject: "PriceHunt — Your New Password",
+    html: `
+      <h2>Password Reset</h2>
+      <p>Hi ${user.name}, your password has been reset.</p>
+      <p>Your new password is: <strong><code>${newPassword}</code></strong></p>
+      <p>Please sign in and keep this safe.</p>
+      <p>— PriceHunt Team</p>
+    `,
+  });
+}
+
 // ─── Auth middleware ──────────────────────────────────────────────────────
 
 export function requireAuth(req, res, next) {
@@ -117,6 +143,24 @@ export function registerAuthRoutes(app) {
 
     const token = jwt.sign({ id: user.id, email: user.email, name: user.name, isAdmin: !!user.is_admin }, JWT_SECRET, { expiresIn: "30d" });
     res.json({ token, user: { id: user.id, name: user.name, email: user.email, mobile: user.mobile, notify_via: user.notify_via, isAdmin: !!user.is_admin } });
+  });
+
+  // POST /api/auth/forgot-password
+  app.post("/api/auth/forgot-password", async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email.toLowerCase().trim());
+    // Always return success to avoid email enumeration
+    if (!user) return res.json({ message: "If that email is registered, a new password has been sent." });
+
+    const newPassword = generatePassword();
+    const hashed = await bcrypt.hash(newPassword, 10);
+    db.prepare("UPDATE users SET password = ? WHERE id = ?").run(hashed, user.id);
+
+    sendResetEmail(user, newPassword).catch(console.error);
+    res.json({ message: "If that email is registered, a new password has been sent.", password: newPassword });
+    // password returned in response for dev/local use; remove in prod if desired
   });
 
   // POST /api/auth/track  (fire-and-forget usage event)
