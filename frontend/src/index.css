@@ -55,3 +55,62 @@ body {
   box-shadow: 0 8px 25px -5px rgba(0,0,0,0.1), 0 4px 10px -5px rgba(0,0,0,0.04);
 }
 
+
+/* -- Marketplace tag pills (all countries) ----------------------------------- */
+
+/* Thailand */
+.marketplace-tag-shopee    { background: rgba(238,77,45,.12);  color: #FF6B4A; border: 1px solid rgba(238,77,45,.25); }
+.marketplace-tag-lazada    { background: rgba(15,20,109,.30);  color: #7B83EB; border: 1px solid rgba(123,131,235,.25); }
+.marketplace-tag-jdcentral { background: rgba(204,0,0,.12);    color: #FF4444; border: 1px solid rgba(204,0,0,.25); }
+.marketplace-tag-bigc      { background: rgba(245,166,35,.12); color: #F5A623; border: 1px solid rgba(245,166,35,.25); }
+.marketplace-tag-central   { background: rgba(178,34,34,.12);  color: #CC4444; border: 1px solid rgba(178,34,34,.25); }
+.marketplace-tag-makro     { background: rgba(0,87,168,.15);   color: #4499DD; border: 1px solid rgba(0,87,168,.30); }
+
+/* Indonesia */
+.marketplace-tag-tokopedia { background: rgba(0,170,91,.12);   color: #00AA5B; border: 1px solid rgba(0,170,91,.25); }
+.marketplace-tag-shopee-id { background: rgba(238,77,45,.12);  color: #FF6B4A; border: 1px solid rgba(238,77,45,.25); }
+.marketplace-tag-lazada-id { background: rgba(15,20,109,.30);  color: #7B83EB; border: 1px solid rgba(123,131,235,.25); }
+.marketplace-tag-bukalapak { background: rgba(232,30,30,.12);  color: #E84040; border: 1px solid rgba(232,30,30,.25); }
+.marketplace-tag-blibli    { background: rgba(0,116,214,.15);  color: #0074D6; border: 1px solid rgba(0,116,214,.30); }
+
+/* Philippines */
+.marketplace-tag-shopee-ph { background: rgba(238,77,45,.12);  color: #FF6B4A; border: 1px solid rgba(238,77,45,.25); }
+.marketplace-tag-lazada-ph { background: rgba(15,20,109,.30);  color: #7B83EB; border: 1px solid rgba(123,131,235,.25); }
+
+/* Singapore */
+.marketplace-tag-shopee-sg { background: rgba(238,77,45,.12);  color: #FF6B4A; border: 1px solid rgba(238,77,45,.25); }
+.marketplace-tag-lazada-sg { background: rgba(15,20,109,.30);  color: #7B83EB; border: 1px solid rgba(123,131,235,.25); }
+.marketplace-tag-amazon-sg { background: rgba(255,153,0,.15);  color: #E08000; border: 1px solid rgba(255,153,0,.30); }
+.marketplace-tag-fairprice { background: rgba(0,114,198,.12);  color: #0072C6; border: 1px solid rgba(0,114,198,.25); }
+.marketplace-tag-courts    { background: rgba(165,0,33,.12);   color: #CC2244; border: 1px solid rgba(165,0,33,.25); }
+
+/* Malaysia */
+.marketplace-tag-shopee-my { background: rgba(238,77,45,.12);  color: #FF6B4A; border: 1px solid rgba(238,77,45,.25); }
+.marketplace-tag-lazada-my { background: rgba(15,20,109,.30);  color: #7B83EB; border: 1px solid rgba(123,131,235,.25); }
+.marketplace-tag-pgmall    { background: rgba(120,0,180,.12);  color: #9933CC; border: 1px solid rgba(120,0,180,.25); }
+
+/* India */
+.marketplace-tag-amazon-in { background: rgba(255,153,0,.15);  color: #E08000; border: 1px solid rgba(255,153,0,.30); }
+.marketplace-tag-flipkart  { background: rgba(40,116,240,.15); color: #2874F0; border: 1px solid rgba(40,116,240,.30); }
+.marketplace-tag-myntra    { background: rgba(255,63,108,.12); color: #FF3F6C; border: 1px solid rgba(255,63,108,.25); }
+.marketplace-tag-jiomart   { background: rgba(0,110,191,.12);  color: #006EBF; border: 1px solid rgba(0,110,191,.25); }
+.marketplace-tag-snapdeal  { background: rgba(228,0,70,.12);   color: #E40046; border: 1px solid rgba(228,0,70,.25); }
+.marketplace-tag-croma     { background: rgba(15,125,28,.12);  color: #0F7D1C; border: 1px solid rgba(15,125,28,.25); }
+
+/* UAE */
+.marketplace-tag-amazon-ae   { background: rgba(255,153,0,.15);  color: #E08000; border: 1px solid rgba(255,153,0,.30); }
+.marketplace-tag-noon        { background: rgba(254,238,0,.20);  color: #9E9200; border: 1px solid rgba(200,190,0,.35); }
+.marketplace-tag-carrefour-ae{ background: rgba(0,79,158,.12);   color: #004F9E; border: 1px solid rgba(0,79,158,.25); }
+.marketplace-tag-lulu-ae     { background: rgba(227,30,38,.12);  color: #E31E26; border: 1px solid rgba(227,30,38,.25); }
+
+/* USA */
+.marketplace-tag-amazon-us { background: rgba(255,153,0,.15);  color: #E08000; border: 1px solid rgba(255,153,0,.30); }
+.marketplace-tag-walmart   { background: rgba(0,113,206,.15);  color: #0071CE; border: 1px solid rgba(0,113,206,.30); }
+.marketplace-tag-bestbuy   { background: rgba(255,210,0,.20);  color: #9A8000; border: 1px solid rgba(200,165,0,.35); }
+.marketplace-tag-target    { background: rgba(204,0,0,.12);    color: #CC0000; border: 1px solid rgba(204,0,0,.25); }
+.marketplace-tag-ebay      { background: rgba(54,101,243,.15); color: #3665F3; border: 1px solid rgba(54,101,243,.30); }
+
+/* Canada */
+.marketplace-tag-amazon-ca  { background: rgba(255,153,0,.15);  color: #E08000; border: 1px solid rgba(255,153,0,.30); }
+.marketplace-tag-walmart-ca { background: rgba(0,113,206,.15);  color: #0071CE; border: 1px solid rgba(0,113,206,.30); }
+.marketplace-tag-bestbuy-ca { background: rgba(255,210,0,.20);  color: #9A8000; border: 1px solid rgba(200,165,0,.35); }

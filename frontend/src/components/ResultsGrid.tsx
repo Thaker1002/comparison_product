@@ -724,6 +724,7 @@ interface ResultsGridProps {
   isLoading?: boolean;
   filters: SearchFilters;
   timestamp?: string;
+  country?: string;
 }
 
 const SKELETONS = Array.from({ length: 6 });
@@ -734,7 +735,22 @@ export function ResultsGrid({
   query,
   isLoading = false,
   filters,
+  country = "TH",
 }: ResultsGridProps) {
+
+  const MARKETPLACE_NAMES: Record<string, string[]> = {
+    TH: ["Shopee", "Lazada", "JD Central", "Big C"],
+    ID: ["Tokopedia", "Shopee", "Lazada", "Bukalapak"],
+    SG: ["Shopee", "Lazada", "Amazon", "Qoo10"],
+    MY: ["Shopee", "Lazada", "Amazon"],
+    IN: ["Flipkart", "Amazon", "Meesho", "Myntra"],
+    PH: ["Shopee", "Lazada", "Zalora"],
+    AE: ["Noon", "Amazon", "Carrefour"],
+    US: ["Amazon", "Walmart", "Best Buy", "Target"],
+    CA: ["Amazon", "Walmart", "Best Buy"],
+  };
+  const marketplaceNames = MARKETPLACE_NAMES[country] || MARKETPLACE_NAMES.TH;
+  const loadingText = `${marketplaceNames.slice(0, 3).join(", ")} and more`;
 
 
   // Apply client-side sorting and filtering
@@ -802,7 +818,7 @@ export function ResultsGrid({
                 </p>
               </div>
               <p className="text-xs text-muted-foreground">
-                Searching Shopee, Lazada, JD Central, Big C and more for{" "}
+                Searching {loadingText} for{" "}
                 <span className="text-foreground font-medium">"{query}"</span>
               </p>
               {/* Animated progress */}

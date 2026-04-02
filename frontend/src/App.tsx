@@ -3,6 +3,7 @@ import axios from "axios";
 import SearchBar from "./components/SearchBar";
 import TaxiTab from "./components/TaxiTab";
 import FlightTab from "./components/FlightTab";
+import FoodTab from "./components/FoodTab";
 import { ResultsGrid } from "./components/ResultsGrid";
 import AuthModal from "./components/AuthModal";
 import AdminDashboard from "./components/AdminDashboard";
@@ -11,6 +12,7 @@ import i18n from './i18n';
 import { searchProducts } from './lib/api';
 import type { Product, MarketplaceSummary, SearchFilters } from './types';
 import { DEFAULT_FILTERS } from './types';
+import { getDefaultMarketplaceIds } from './lib/countryMarketplaces';
 import type { Product as ApiProduct, MarketplaceSummary as ApiSummary } from './lib/api';
 
 interface AuthUser {
@@ -38,11 +40,50 @@ const LANGUAGES = [
   { code: "ar", name: "العربية", flag: "🇦🇪" },
   { code: "fr", name: "Français", flag: "🇫🇷" },
 ];
-const CATEGORIES = [
+const CATEGORIES: { id: string; label: string; icon: string; comingSoon?: boolean }[] = [
   { id: "purchase", label: "Purchase", icon: "🛒" },
-  { id: "ride", label: "Ride", icon: "🚕" },
-  { id: "flights", label: "Flights", icon: "✈️", comingSoon: false },
+  { id: "ride",     label: "Ride",     icon: "🚕" },
+  { id: "flights",  label: "Flights",  icon: "✈️" },
+  { id: "food",     label: "Food",     icon: "🍜" },
 ];
+
+// Per-tab color themes — background gradient + accent colour
+const TAB_THEMES: Record<string, {
+  bg: string;
+  headerGrad: string;
+  tabActive: string;
+  tabText: string;
+  btnBg: string;
+}> = {
+  purchase: {
+    bg: "bg-gradient-to-b from-[#1a0f3d] via-[#181728] to-[#10101e]",
+    headerGrad: "from-violet-500 via-purple-600 to-indigo-700",
+    tabActive: "bg-white text-indigo-700 shadow-md",
+    tabText: "text-indigo-300 hover:text-white hover:bg-white/10",
+    btnBg: "bg-indigo-600 hover:bg-indigo-700",
+  },
+  ride: {
+    bg: "bg-gradient-to-b from-[#2a1200] via-[#1e0f00] to-[#130900]",
+    headerGrad: "from-amber-400 via-orange-500 to-red-600",
+    tabActive: "bg-white text-orange-700 shadow-md",
+    tabText: "text-amber-300 hover:text-white hover:bg-white/10",
+    btnBg: "bg-orange-500 hover:bg-orange-600",
+  },
+  flights: {
+    bg: "bg-gradient-to-b from-[#001a3d] via-[#001230] to-[#000d22]",
+    headerGrad: "from-sky-400 via-blue-500 to-cyan-600",
+    tabActive: "bg-white text-sky-700 shadow-md",
+    tabText: "text-sky-300 hover:text-white hover:bg-white/10",
+    btnBg: "bg-sky-500 hover:bg-sky-600",
+  },
+  food: {
+    bg: "bg-gradient-to-b from-[#00200a] via-[#001608] to-[#000e05]",
+    headerGrad: "from-emerald-400 via-green-500 to-teal-600",
+    tabActive: "bg-white text-emerald-700 shadow-md",
+    tabText: "text-emerald-300 hover:text-white hover:bg-white/10",
+    btnBg: "bg-emerald-500 hover:bg-emerald-600",
+  },
+};
 
 const COUNTRY_DEFAULT_LANGUAGE: Record<string, string> = {
   TH: "th", ID: "id", PH: "tl", MY: "en",
@@ -92,6 +133,11 @@ export default function App() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { t } = useTranslation();
 
+  // Reset marketplace filters whenever the country changes
+  useEffect(() => {
+    setFilters(prev => ({ ...prev, marketplaces: getDefaultMarketplaceIds(country) }));
+  }, [country]);
+
   // Auto-detect country & language from device GPS on first load
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -129,6 +175,7 @@ export default function App() {
     try {
       const result = await searchProducts({
         query: query.trim(),
+        country,
         marketplaces: filters.marketplaces.length > 0 ? filters.marketplaces : undefined,
         searchMode: filters.searchMode,
         image: imagePreview ?? undefined,
@@ -167,18 +214,21 @@ export default function App() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
+  const theme = TAB_THEMES[activeCategory] ?? TAB_THEMES.purchase;
+
   return (
-    <div className="min-h-screen bg-[#181728]">
+    <div className={`min-h-screen transition-colors duration-500 ${theme.bg}`}>
       {/* Auth gate */}
       {!authUser && <AuthModal onAuth={handleAuth} />}
       {/* Admin dashboard overlay */}
       {showAdmin && <AdminDashboard onClose={() => setShowAdmin(false)} />}
 
-      <div className="max-w-6xl mx-auto px-4 pt-8">
+      {/* ─── Mobile-safe: add bottom padding so content doesn't hide behind nav ─── */}
+      <div className="max-w-3xl mx-auto px-3 sm:px-4 pt-4 sm:pt-8 pb-24 sm:pb-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-400 via-blue-500 to-indigo-600 shadow-lg shadow-blue-500/40">
+            <span className={`inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-gradient-to-br ${theme.headerGrad} shadow-lg`}>
               <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                 <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth={1.8} fill="white" fillOpacity={0.25} />
                 <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth={1.8} fill="white" fillOpacity={0.25} />
@@ -188,7 +238,7 @@ export default function App() {
             </span>
             <div>
               <h1 className="text-2xl font-bold text-white">{t('appTitle')}</h1>
-              <p className="text-xs text-indigo-200">{t('subtitle')}</p>
+              <p className="text-xs text-white/60">{t('subtitle')}</p>
             </div>
           </div>
           <div className="flex gap-2 items-center flex-wrap">
@@ -210,35 +260,41 @@ export default function App() {
             {/* User info */}
             {authUser && (
               <div className="flex items-center gap-2 ml-1">
-                <span className="text-xs text-indigo-200 hidden sm:block">👋 {authUser.name}</span>
+                <span className="text-xs text-white/60 hidden sm:block">👋 {authUser.name}</span>
                 {authUser.isAdmin && (
                   <button onClick={() => setShowAdmin(true)} className="text-xs bg-yellow-400 text-yellow-900 font-semibold px-2 py-1 rounded-lg hover:bg-yellow-300">
                     Admin
                   </button>
                 )}
-                <button onClick={handleLogout} className="text-xs text-indigo-300 hover:text-white border border-indigo-700 px-2 py-1 rounded-lg">
+                <button onClick={handleLogout} className="text-xs text-white/50 hover:text-white border border-white/20 px-2 py-1 rounded-lg">
                   Sign out
                 </button>
               </div>
             )}
           </div>
         </div>
-        {/* Tabs */}
-        <div className="flex gap-2 mb-8">
+        {/* ── Desktop tab bar (hidden on mobile — use bottom nav instead) ── */}
+        <div className="hidden sm:flex gap-1.5 mb-6 bg-white/5 p-1 rounded-2xl">
           {CATEGORIES.map(cat => (
             <button
               key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`px-4 py-2 rounded-t-lg font-medium ${activeCategory === cat.id ? "bg-white text-indigo-700" : "bg-indigo-900 text-white"}`}
-              disabled={cat.comingSoon}
+              onClick={() => !cat.comingSoon && setActiveCategory(cat.id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                activeCategory === cat.id ? theme.tabActive : theme.tabText
+              } ${cat.comingSoon ? "opacity-50 cursor-default" : "cursor-pointer"}`}
             >
-              {t(cat.id)}
-              {cat.comingSoon && <span className="ml-2 text-xs bg-yellow-300 text-yellow-900 px-2 py-0.5 rounded">Soon</span>}
+              <span>{cat.icon}</span>
+              <span>{cat.label}</span>
+              {cat.comingSoon && <span className="text-[9px] bg-yellow-400/90 text-yellow-900 px-1.5 py-0.5 rounded-full font-bold">SOON</span>}
             </button>
           ))}
         </div>
         {/* Main Content */}
-        <div className="bg-white rounded-xl shadow p-6 min-h-[400px]">
+        <div className={
+          (activeCategory === "flights" || activeCategory === "food")
+            ? "rounded-xl overflow-hidden min-h-[400px]"
+            : "bg-white rounded-xl shadow p-6 min-h-[400px]"
+        }>
           {activeCategory === "purchase" && (
             <>
               {/* Image upload row — compact, sits above search bar */}
@@ -295,6 +351,7 @@ export default function App() {
                 isLoading={isLoading}
                 resultCount={products.length > 0 ? products.length : undefined}
                 hasImage={!!imagePreview}
+                country={country}
               />
               {/* Error */}
               {searchError && (
@@ -312,6 +369,7 @@ export default function App() {
                     isLoading={isLoading}
                     filters={filters}
                     timestamp={searchTimestamp}
+                    country={country}
                   />
                 </div>
               )}
@@ -321,12 +379,54 @@ export default function App() {
             <TaxiTab country={country} countryName={COUNTRIES.find(c => c.code === country)?.name || "Thailand"} countryFlag={COUNTRIES.find(c => c.code === country)?.flag || "🇹🇭"} language={language} />
           )}
           {activeCategory === "flights" && (
-            <div className="py-4">
-              <FlightTab />
+            <FlightTab country={country} />
+          )}
+          {activeCategory === "food" && (
+            <div className="relative min-h-[60vh]">
+              <div className="opacity-20 pointer-events-none select-none">
+                <FoodTab country={country} countryName={COUNTRIES.find(c => c.code === country)?.name} />
+              </div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+                <div className="bg-black/70 backdrop-blur-md border border-white/20 rounded-3xl px-10 py-10 text-center shadow-2xl max-w-sm mx-4">
+                  <div className="text-6xl mb-4">🍜</div>
+                  <h2 className="text-2xl font-bold text-white mb-2">Coming Soon</h2>
+                  <p className="text-white/50 text-sm">Food delivery price comparison is under construction. Check back soon!</p>
+                  <div className="mt-5 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-400 text-xs font-semibold tracking-wide uppercase">
+                    🚧 In Development
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* ── Mobile bottom navigation (visible only on small screens) ── */}
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-t border-white/10">
+        <div className="flex">
+          {CATEGORIES.map(cat => {
+            const isActive = activeCategory === cat.id;
+            const catTheme = TAB_THEMES[cat.id] ?? TAB_THEMES.purchase;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => !cat.comingSoon && setActiveCategory(cat.id)}
+                className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-3 transition-all duration-200 ${
+                  cat.comingSoon ? "opacity-40" : ""
+                }`}
+              >
+                <span className={`text-2xl leading-none transition-transform duration-200 ${isActive ? "scale-125" : "scale-100 opacity-50"}`}>{cat.icon}</span>
+                <span className={`text-[10px] font-semibold tracking-wide transition-colors duration-200 ${
+                  isActive ? "text-white" : "text-white/40"
+                }`}>{cat.label}</span>
+                {isActive && (
+                  <span className={`block h-0.5 w-5 rounded-full mt-0.5 bg-gradient-to-r ${catTheme.headerGrad}`}/>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

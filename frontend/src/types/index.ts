@@ -1,12 +1,7 @@
 // ─── Marketplace Types ──────────────────────────────────────────────────────
 
-export type MarketplaceId =
-  | "shopee"
-  | "lazada"
-  | "jdcentral"
-  | "bigc"
-  | "central"
-  | "makro";
+// String — platform IDs vary per country (shopee, lazada, amazon-in, tokopedia, etc.)
+export type MarketplaceId = string;
 
 export interface Marketplace {
   id: MarketplaceId;
@@ -123,7 +118,7 @@ export interface SearchFilters {
 }
 
 export const DEFAULT_FILTERS: SearchFilters = {
-  marketplaces: ["shopee", "lazada", "jdcentral", "bigc", "central", "makro"],
+  marketplaces: [], // populated dynamically from selected country
   priceRange: null,
   minRating: null,
   hasDiscount: false,

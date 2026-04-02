@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodBeat — UI Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #FF4D1C;
+    --accent2: #FF8C42;
+    --dark: #0F0E0D;
+    --dark2: #1A1917;
+    --dark3: #252422;
+    --mid: #3D3B38;
+    --muted: #6B6966;
+    --light: #C8C5BF;
+    --cream: #F5F2EC;
+    --white: #FDFCF9;
+    --success: #22C55E;
+    --warn: #F59E0B;
+    --info: #3B82F6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0A0908;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--white);
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+  h1, h2, h3, .display { font-family: 'Syne', sans-serif; }
+
+  /* LAYOUT */
+  .page-title {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .page-title h1 {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--white);
+  }
+  .page-title h1 span { color: var(--accent); }
+  .page-title p { font-size: 15px; color: var(--muted); margin-top: 8px; }
+
+  .screens-wrapper {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .screen-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+  .screen-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* PHONE FRAME */
+  .phone {
+    width: 340px;
+    background: var(--dark2);
+    border-radius: 44px;
+    border: 2px solid var(--mid);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+  }
+  .phone-notch {
+    width: 120px;
+    height: 30px;
+    background: var(--dark);
+    border-radius: 0 0 20px 20px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+  }
+  .phone-screen {
+    background: var(--cream);
+    color: var(--dark);
+    min-height: 680px;
+    overflow: hidden;
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 20px 4px;
+    background: inherit;
+  }
+  .status-time { font-size: 12px; font-weight: 600; font-family: 'Syne', sans-serif; }
+  .status-icons { display: flex; gap: 4px; align-items: center; }
+  .status-icons span { font-size: 10px; }
+
+  /* SCREEN 1: HOME */
+  .s1 { background: var(--dark); }
+  .s1 .status-bar { background: var(--dark); }
+  .s1 .status-bar * { color: var(--cream); }
+  .s1-header {
+    padding: 16px 24px 20px;
+    background: var(--dark);
+  }
+  .s1-greeting { font-size: 13px; color: var(--muted); font-family: 'DM Sans', sans-serif; }
+  .s1-name { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: var(--white); }
+  .s1-loc {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,77,28,0.15);
+    border: 1px solid rgba(255,77,28,0.3);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px; font-weight: 500; color: var(--accent);
+    margin-top: 8px;
+  }
+  .loc-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .s1-search {
+    background: var(--dark3);
+    border-radius: 16px;
+    margin: 0 24px 0;
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px;
+    border: 1px solid var(--mid);
+  }
+  .s1-search-icon { font-size: 16px; color: var(--muted); }
+  .s1-search-text { font-size: 14px; color: var(--muted); font-family: 'DM Sans'; }
+
+  .s1-countries {
+    padding: 20px 24px 0;
+  }
+  .s1-sec-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .country-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 12px; font-weight: 500;
+    border: 1px solid var(--mid);
+    color: var(--light);
+    background: var(--dark3);
+    cursor: pointer;
+  }
+  .chip.active { background: var(--accent); color: var(--white); border-color: var(--accent); }
+  .chip-flag { font-size: 14px; }
+
+  .trending-section { padding: 20px 24px 0; }
+  .trend-cards { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .trend-card {
+    background: var(--dark3);
+    border-radius: 16px;
+    padding: 14px 16px;
+    border: 1px solid var(--mid);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .trend-left { display: flex; align-items: center; gap: 12px; }
+  .trend-emoji { font-size: 28px; }
+  .trend-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; color: var(--white); }
+  .trend-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .trend-badge {
+    font-size: 10px; font-weight: 600;
+    padding: 4px 8px; border-radius: 8px;
+    background: rgba(34,197,94,0.15); color: var(--success);
+  }
+
+  .bottom-nav {
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 14px 0 18px;
+    background: var(--dark);
+    border-top: 1px solid var(--mid);
+    margin-top: 20px;
+  }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .nav-icon { font-size: 18px; }
+  .nav-label { font-size: 9px; font-weight: 500; color: var(--muted); }
+  .nav-item.active .nav-label { color: var(--accent); }
+  .nav-item.active .nav-icon { filter: none; }
+
+  /* SCREEN 2: SEARCH RESULTS */
+  .s2 { background: var(--cream); color: var(--dark); }
+  .s2 .status-bar { background: var(--cream); }
+  .s2-header {
+    background: var(--white);
+    padding: 10px 20px 14px;
+    border-bottom: 1px solid #E8E4DC;
+  }
+  .s2-back { font-size: 13px; color: var(--accent); font-weight: 500; display: flex; align-items: center; gap: 4px; margin-bottom: 10px; }
+  .s2-search-bar {
+    background: #F0EDE6;
+    border-radius: 12px;
+    padding: 11px 14px;
+    display: flex; align-items: center; gap: 8px;
+    border: 1px solid #DDD9D0;
+  }
+  .s2-query { font-size: 14px; font-weight: 500; color: var(--dark); }
+  .s2-loc-tag {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 10px; color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .s2-result-count { padding: 14px 20px 8px; font-size: 12px; color: var(--muted); font-weight: 500; }
+
+  .result-card {
+    background: var(--white);
+    margin: 0 16px 10px;
+    border-radius: 18px;
+    padding: 0;
+    border: 1px solid #E8E4DC;
+    overflow: hidden;
+  }
+  .result-header {
+    padding: 14px 16px 10px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid #F0EDE6;
+  }
+  .rest-avatar {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: linear-gradient(135deg, #FF6B3D, #FF4D1C);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .rest-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--dark); }
+  .rest-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .rest-rating { margin-left: auto; font-size: 13px; font-weight: 600; color: var(--dark); display: flex; align-items: center; gap: 4px; }
+
+  .platform-rows { padding: 10px 16px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .platform-row {
+    display: flex; align-items: center;
+    padding: 10px 12px;
+    background: #F7F5F0;
+    border-radius: 12px;
+    border: 1px solid #EDEAE3;
+  }
+  .platform-row.best { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.3); }
+  .platform-logo {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; font-family: 'Syne', sans-serif;
+    flex-shrink: 0;
+  }
+  .logo-grab { background: #00B14F; color: white; font-size: 10px; }
+  .logo-panda { background: #D70F64; color: white; font-size: 10px; }
+  .logo-shopee { background: #EE4D2D; color: white; font-size: 10px; }
+  .platform-info { margin-left: 10px; flex: 1; }
+  .platform-name-sm { font-size: 12px; font-weight: 500; color: var(--dark); }
+  .platform-eta { font-size: 10px; color: var(--muted); }
+  .platform-price { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--dark); margin-left: auto; }
+  .best-badge {
+    background: var(--success); color: white;
+    font-size: 9px; font-weight: 700;
+    padding: 2px 6px; border-radius: 6px;
+    margin-left: 6px;
+  }
+  .order-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 7px 12px;
+    font-size: 11px; font-weight: 600;
+    font-family: 'Syne', sans-serif;
+    cursor: pointer;
+    margin-left: 8px;
+  }
+
+  /* SCREEN 3: COMPARISON DETAIL */
+  .s3 { background: var(--cream); }
+  .s3-hero {
+    background: var(--dark);
+    padding: 20px 20px 28px;
+    border-radius: 0 0 32px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .s3-hero::before {
+    content: '🍜';
+    position: absolute; right: 24px; top: 50%; transform: translateY(-50%);
+    font-size: 80px; opacity: 0.15;
+  }
+  .s3-back-btn { font-size: 13px; color: var(--accent); font-weight: 500; margin-bottom: 16px; display: block; }
+  .s3-dish { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--white); line-height: 1.2; }
+  .s3-rest { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .s3-tags { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .s3-tag {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 10px; font-weight: 500; color: var(--light);
+  }
+
+  .s3-summary {
+    margin: 16px 20px 0;
+    background: var(--white);
+    border-radius: 18px;
+    padding: 16px;
+    border: 1px solid #E8E4DC;
+  }
+  .s3-summary-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .s3-platform-detail { display: flex; flex-direction: column; gap: 6px; }
+  .s3-plat-row {
+    display: flex; align-items: center;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #EDE9E0;
+  }
+  .s3-plat-row.winner { border-color: #22C55E; background: rgba(34,197,94,0.06); }
+  .s3-plat-name-col { flex: 1; }
+  .s3-plat-nm { font-size: 13px; font-weight: 500; color: var(--dark); }
+  .s3-plat-breakdown { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .s3-plat-total { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--dark); }
+  .s3-win-chip {
+    background: var(--success); color: white;
+    font-size: 9px; font-weight: 700;
+    padding: 3px 7px; border-radius: 20px;
+    margin-left: 8px;
+  }
+
+  .s3-saving {
+    margin: 14px 20px 0;
+    background: rgba(255,77,28,0.08);
+    border: 1px solid rgba(255,77,28,0.2);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .saving-icon { font-size: 24px; }
+  .saving-text { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--accent); }
+  .saving-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .s3-cta { margin: 16px 20px 20px; }
+  .cta-btn {
+    width: 100%;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    padding: 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  /* SCREEN 4: COUNTRY SELECTOR */
+  .s4 { background: var(--cream); }
+  .s4-header { padding: 16px 20px 14px; background: var(--white); border-bottom: 1px solid #E8E4DC; }
+  .s4-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--dark); }
+  .s4-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .country-list { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .country-row {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+    border: 1px solid #E8E4DC;
+  }
+  .country-row.selected { border-color: var(--accent); background: rgba(255,77,28,0.04); }
+  .country-flag-lg { font-size: 28px; }
+  .country-details { flex: 1; }
+  .country-nm { font-size: 14px; font-weight: 500; color: var(--dark); font-family: 'Syne', sans-serif; }
+  .country-apps { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .country-check {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent); display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: white;
+  }
+  .country-circle {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid #DDD9D0;
+  }
+
+  /* SCREEN 5: ALERTS */
+  .s5 { background: var(--cream); }
+  .s5-header { padding: 16px 20px 14px; background: var(--white); border-bottom: 1px solid #E8E4DC; }
+  .s5-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--dark); }
+  .alert-list { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .alert-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 14px 16px;
+    border: 1px solid #E8E4DC;
+    display: flex; gap: 12px;
+  }
+  .alert-icon { font-size: 22px; flex-shrink: 0; }
+  .alert-body { flex: 1; }
+  .alert-title { font-size: 13px; font-weight: 500; color: var(--dark); }
+  .alert-detail { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .alert-price-drop { font-size: 12px; font-weight: 600; color: var(--success); margin-top: 6px; }
+  .alert-time { font-size: 10px; color: var(--muted); margin-left: auto; }
+  .alert-new { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 4px; flex-shrink: 0; }
+
+  /* SECTION DIVIDERS */
+  .section-divider {
+    text-align: center;
+    margin: 56px 0 40px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .section-divider::before, .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--mid);
+  }
+
+  /* PLAN SECTION */
+  .plan-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+  .plan-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--white);
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .plan-subtitle { text-align: center; font-size: 15px; color: var(--muted); margin-bottom: 40px; }
+
+  .plan-block {
+    margin-bottom: 32px;
+  }
+  .plan-block-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .plan-block-title::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+  .plan-card {
+    background: var(--dark2);
+    border: 1px solid var(--mid);
+    border-radius: 16px;
+    padding: 16px 18px;
+  }
+  .plan-card-top { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .plan-card-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+  .plan-card-body { font-size: 13px; color: var(--light); line-height: 1.6; }
+
+  .phase-timeline {
+    position: relative;
+    padding-left: 28px;
+  }
+  .phase-timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--mid);
+    border-radius: 2px;
+  }
+  .phase-item {
+    position: relative;
+    margin-bottom: 24px;
+  }
+  .phase-item::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--dark);
+  }
+  .phase-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .phase-period { font-size: 11px; font-weight: 600; color: var(--accent); background: rgba(255,77,28,0.12); padding: 3px 10px; border-radius: 20px; }
+  .phase-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--white); }
+  .phase-content { font-size: 13px; color: var(--light); line-height: 1.6; }
+
+  .metrics-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .metric-box {
+    background: var(--dark2);
+    border: 1px solid var(--mid);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .metric-val { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--accent); }
+  .metric-lbl { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .revenue-row {
+    background: var(--dark2);
+    border: 1px solid var(--mid);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .rev-num { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--accent); width: 40px; flex-shrink: 0; }
+  .rev-title { font-size: 14px; font-weight: 500; color: var(--white); }
+  .rev-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .rev-est { font-size: 12px; font-weight: 600; color: var(--success); margin-left: auto; white-space: nowrap; }
+
+  .team-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  .team-card {
+    background: var(--dark2);
+    border: 1px solid var(--mid);
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+  .team-role { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .team-name { font-size: 14px; font-weight: 500; color: var(--white); margin-bottom: 4px; }
+  .team-note { font-size: 11px; color: var(--muted); }
+
+  .risk-list { display: flex; flex-direction: column; gap: 8px; }
+  .risk-item {
+    background: var(--dark2);
+    border: 1px solid var(--mid);
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .risk-level {
+    font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 20px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .rl-high { background: rgba(239,68,68,0.15); color: #EF4444; }
+  .rl-med { background: rgba(245,158,11,0.15); color: #F59E0B; }
+  .rl-low { background: rgba(34,197,94,0.15); color: #22C55E; }
+  .risk-txt { font-size: 13px; color: var(--light); line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h1>Food<span>Beat</span> — UI Mockup</h1>
+  <p>Interactive screen designs across 7 countries · 5 key app screens</p>
+</div>
+
+<div class="screens-wrapper">
+
+  <!-- SCREEN 1: HOME -->
+  <div class="screen-col">
+    <div class="screen-label">Home screen</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen s1">
+        <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div></div>
+        <div class="s1-header">
+          <div class="s1-greeting">Good morning,</div>
+          <div class="s1-name">Hey Thaker 👋</div>
+          <div class="s1-loc"><span class="loc-dot"></span> Bangkok, Thailand</div>
+        </div>
+        <div style="padding: 16px 24px 0;">
+          <div class="s1-search">
+            <span class="s1-search-icon">🔍</span>
+            <span class="s1-search-text">Search food, dish, or restaurant…</span>
+          </div>
+        </div>
+        <div class="s1-countries">
+          <div class="s1-sec-label">Your countries</div>
+          <div class="country-chips">
+            <div class="chip active"><span class="chip-flag">🇹🇭</span> Thailand</div>
+            <div class="chip"><span class="chip-flag">🇮🇳</span> India</div>
+            <div class="chip"><span class="chip-flag">🇸🇬</span> Singapore</div>
+            <div class="chip"><span class="chip-flag">🇦🇪</span> Dubai</div>
+            <div class="chip"><span class="chip-flag">🇮🇩</span> Indonesia</div>
+            <div class="chip"><span class="chip-flag">🇺🇸</span> USA</div>
+            <div class="chip"><span class="chip-flag">🇨🇦</span> Canada</div>
+          </div>
+        </div>
+        <div class="trending-section">
+          <div class="s1-sec-label">Trending near you</div>
+          <div class="trend-cards">
+            <div class="trend-card">
+              <div class="trend-left">
+                <span class="trend-emoji">🍜</span>
+                <div>
+                  <div class="trend-title">Pad Thai</div>
+                  <div class="trend-sub">4 apps · from ฿85</div>
+                </div>
+              </div>
+              <div class="trend-badge">Save ฿42</div>
+            </div>
+            <div class="trend-card">
+              <div class="trend-left">
+                <span class="trend-emoji">🍕</span>
+                <div>
+                  <div class="trend-title">Margherita Pizza</div>
+                  <div class="trend-sub">3 apps · from ฿249</div>
+                </div>
+              </div>
+              <div class="trend-badge">Save ฿67</div>
+            </div>
+            <div class="trend-card">
+              <div class="trend-left">
+                <span class="trend-emoji">🍱</span>
+                <div>
+                  <div class="trend-title">Japanese Bento</div>
+                  <div class="trend-sub">3 apps · from ฿189</div>
+                </div>
+              </div>
+              <div class="trend-badge">Save ฿55</div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-item active"><span class="nav-icon">🏠</span><span class="nav-label" style="color:var(--accent)">Home</span></div>
+          <div class="nav-item"><span class="nav-icon">🔍</span><span class="nav-label">Search</span></div>
+          <div class="nav-item"><span class="nav-icon">🔔</span><span class="nav-label">Alerts</span></div>
+          <div class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: SEARCH RESULTS -->
+  <div class="screen-col">
+    <div class="screen-label">Search results</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen s2">
+        <div class="status-bar"><span class="status-time">9:42</span><div class="status-icons"><span style="color:#333">●●●</span></div></div>
+        <div class="s2-header">
+          <div class="s2-back">← Back</div>
+          <div class="s2-search-bar">
+            <span>🔍</span>
+            <span class="s2-query">Pad Thai</span>
+          </div>
+          <div class="s2-loc-tag">📍 Bangkok · <span style="color:var(--accent);margin-left:3px">Thailand</span></div>
+        </div>
+        <div class="s2-result-count">12 restaurants found — comparing 3 apps</div>
+
+        <!-- Result Card 1 -->
+        <div class="result-card">
+          <div class="result-header">
+            <div class="rest-avatar">🍜</div>
+            <div>
+              <div class="rest-name">Thip Samai</div>
+              <div class="rest-meta">Pad Thai · Traditional · 1.2 km</div>
+            </div>
+            <div class="rest-rating">⭐ 4.8</div>
+          </div>
+          <div class="platform-rows">
+            <div class="platform-row best">
+              <div class="platform-logo logo-grab">G</div>
+              <div class="platform-info">
+                <div class="platform-name-sm">GrabFood</div>
+                <div class="platform-eta">~28 min</div>
+              </div>
+              <div class="platform-price">฿127</div>
+              <span class="best-badge">BEST</span>
+              <button class="order-btn">Order</button>
+            </div>
+            <div class="platform-row">
+              <div class="platform-logo logo-panda">P</div>
+              <div class="platform-info">
+                <div class="platform-name-sm">Foodpanda</div>
+                <div class="platform-eta">~35 min</div>
+              </div>
+              <div class="platform-price">฿156</div>
+              <button class="order-btn" style="background:#555">Order</button>
+            </div>
+            <div class="platform-row">
+              <div class="platform-logo logo-shopee">S</div>
+              <div class="platform-info">
+                <div class="platform-name-sm">ShopeeFood</div>
+                <div class="platform-eta">~32 min</div>
+              </div>
+              <div class="platform-price">฿169</div>
+              <button class="order-btn" style="background:#555">Order</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result Card 2 -->
+        <div class="result-card">
+          <div class="result-header">
+            <div class="rest-avatar" style="background:linear-gradient(135deg,#F59E0B,#EF4444)">🥘</div>
+            <div>
+              <div class="rest-name">Raan Jay Fai</div>
+              <div class="rest-meta">Thai Fusion · 0.8 km</div>
+            </div>
+            <div class="rest-rating">⭐ 4.6</div>
+          </div>
+          <div class="platform-rows">
+            <div class="platform-row best">
+              <div class="platform-logo logo-panda">P</div>
+              <div class="platform-info">
+                <div class="platform-name-sm">Foodpanda</div>
+                <div class="platform-eta">~22 min</div>
+              </div>
+              <div class="platform-price">฿143</div>
+              <span class="best-badge">BEST</span>
+              <button class="order-btn">Order</button>
+            </div>
+            <div class="platform-row">
+              <div class="platform-logo logo-grab">G</div>
+              <div class="platform-info">
+                <div class="platform-name-sm">GrabFood</div>
+                <div class="platform-eta">~30 min</div>
+              </div>
+              <div class="platform-price">฿178</div>
+              <button class="order-btn" style="background:#555">Order</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-nav" style="background:var(--white);border-top:1px solid #E8E4DC;">
+          <div class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></div>
+          <div class="nav-item active"><span class="nav-icon">🔍</span><span class="nav-label" style="color:var(--accent)">Search</span></div>
+          <div class="nav-item"><span class="nav-icon">🔔</span><span class="nav-label">Alerts</span></div>
+          <div class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: COMPARISON DETAIL -->
+  <div class="screen-col">
+    <div class="screen-label">Price comparison detail</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen s3">
+        <div class="status-bar" style="background:var(--dark);"><span class="status-time" style="color:var(--cream)">9:43</span><div class="status-icons"><span style="color:var(--cream)">●●●</span></div></div>
+        <div class="s3-hero">
+          <a class="s3-back-btn">← Results</a>
+          <div class="s3-dish">Pad Thai Goong Sod</div>
+          <div class="s3-rest">Thip Samai · Bangkok</div>
+          <div class="s3-tags">
+            <span class="s3-tag">🦐 Shrimp</span>
+            <span class="s3-tag">⭐ 4.8</span>
+            <span class="s3-tag">1.2 km away</span>
+          </div>
+        </div>
+
+        <div class="s3-summary">
+          <div class="s3-summary-title">Price breakdown — all 3 platforms</div>
+          <div class="s3-platform-detail">
+            <div class="s3-plat-row winner">
+              <div class="platform-logo logo-grab" style="margin-right:10px">G</div>
+              <div class="s3-plat-name-col">
+                <div class="s3-plat-nm">GrabFood</div>
+                <div class="s3-plat-breakdown">฿85 item + ฿32 delivery + ฿10 fee</div>
+              </div>
+              <div class="s3-plat-total">฿127</div>
+              <span class="s3-win-chip">✓ BEST</span>
+            </div>
+            <div class="s3-plat-row">
+              <div class="platform-logo logo-panda" style="margin-right:10px">P</div>
+              <div class="s3-plat-name-col">
+                <div class="s3-plat-nm">Foodpanda</div>
+                <div class="s3-plat-breakdown">฿85 item + ฿48 delivery + ฿23 fee</div>
+              </div>
+              <div class="s3-plat-total">฿156</div>
+            </div>
+            <div class="s3-plat-row">
+              <div class="platform-logo logo-shopee" style="margin-right:10px">S</div>
+              <div class="s3-plat-name-col">
+                <div class="s3-plat-nm">ShopeeFood</div>
+                <div class="s3-plat-breakdown">฿85 item + ฿55 delivery + ฿29 fee</div>
+              </div>
+              <div class="s3-plat-total">฿169</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="s3-saving">
+          <span class="saving-icon">💰</span>
+          <div>
+            <div class="saving-text">Save ฿42 by choosing GrabFood</div>
+            <div class="saving-sub">vs most expensive option · prices 15 min ago</div>
+          </div>
+        </div>
+
+        <div class="s3-cta">
+          <button class="cta-btn">Order on GrabFood →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: COUNTRY SELECTOR -->
+  <div class="screen-col">
+    <div class="screen-label">Country selector</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen s4">
+        <div class="status-bar" style="background:var(--white);"><span class="status-time" style="color:#333">9:44</span><div class="status-icons"><span style="color:#333">●●●</span></div></div>
+        <div class="s4-header">
+          <div class="s4-title">Choose country</div>
+          <div class="s4-sub">We'll show apps available in that market</div>
+        </div>
+        <div class="country-list">
+          <div class="country-row selected">
+            <span class="country-flag-lg">🇹🇭</span>
+            <div class="country-details">
+              <div class="country-nm">Thailand</div>
+              <div class="country-apps">GrabFood · Foodpanda · ShopeeFood · Robinhood</div>
+            </div>
+            <div class="country-check">✓</div>
+          </div>
+          <div class="country-row">
+            <span class="country-flag-lg">🇮🇳</span>
+            <div class="country-details">
+              <div class="country-nm">India</div>
+              <div class="country-apps">Zomato · Swiggy · Foodpanda · Magicpin</div>
+            </div>
+            <div class="country-circle"></div>
+          </div>
+          <div class="country-row">
+            <span class="country-flag-lg">🇸🇬</span>
+            <div class="country-details">
+              <div class="country-nm">Singapore</div>
+              <div class="country-apps">GrabFood · Foodpanda · Deliveroo · Uber Eats</div>
+            </div>
+            <div class="country-circle"></div>
+          </div>
+          <div class="country-row">
+            <span class="country-flag-lg">🇦🇪</span>
+            <div class="country-details">
+              <div class="country-nm">UAE / Dubai</div>
+              <div class="country-apps">Talabat · Deliveroo · Zomato · Careem Now</div>
+            </div>
+            <div class="country-circle"></div>
+          </div>
+          <div class="country-row">
+            <span class="country-flag-lg">🇮🇩</span>
+            <div class="country-details">
+              <div class="country-nm">Indonesia</div>
+              <div class="country-apps">GoFood · GrabFood · ShopeeFood · Foodpanda</div>
+            </div>
+            <div class="country-circle"></div>
+          </div>
+          <div class="country-row">
+            <span class="country-flag-lg">🇺🇸</span>
+            <div class="country-details">
+              <div class="country-nm">USA</div>
+              <div class="country-apps">DoorDash · Uber Eats · Grubhub · Instacart</div>
+            </div>
+            <div class="country-circle"></div>
+          </div>
+          <div class="country-row">
+            <span class="country-flag-lg">🇨🇦</span>
+            <div class="country-details">
+              <div class="country-nm">Canada</div>
+              <div class="country-apps">Uber Eats · DoorDash · SkipTheDishes · Just Eat</div>
+            </div>
+            <div class="country-circle"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: PRICE ALERTS -->
+  <div class="screen-col">
+    <div class="screen-label">Price alerts</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen s5">
+        <div class="status-bar" style="background:var(--white);"><span class="status-time" style="color:#333">9:45</span><div class="status-icons"><span style="color:#333">●●●</span></div></div>
+        <div class="s5-header">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="s5-title">Price Alerts</div>
+            <span style="font-size:12px;color:var(--accent);font-weight:500">+ New alert</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Watching 5 dishes · 3 countries</div>
+        </div>
+        <div class="alert-list">
+          <div class="alert-card" style="border-color:rgba(34,197,94,0.4);background:rgba(34,197,94,0.04)">
+            <div class="alert-new"></div>
+            <span class="alert-icon">🍜</span>
+            <div class="alert-body">
+              <div class="alert-title">Pad Thai — Bangkok</div>
+              <div class="alert-detail">GrabFood dropped price</div>
+              <div class="alert-price-drop">↓ ฿127 (was ฿156) · Save ฿29</div>
+            </div>
+            <div class="alert-time">2m ago</div>
+          </div>
+          <div class="alert-card">
+            <div style="width:8px;height:8px;flex-shrink:0"></div>
+            <span class="alert-icon">🍛</span>
+            <div class="alert-body">
+              <div class="alert-title">Butter Chicken — Mumbai</div>
+              <div class="alert-detail">Swiggy cheaper than Zomato</div>
+              <div style="font-size:12px;font-weight:600;color:var(--info);margin-top:6px">₹ 312 vs ₹ 389 · Save ₹77</div>
+            </div>
+            <div class="alert-time">1h ago</div>
+          </div>
+          <div class="alert-card">
+            <div style="width:8px;height:8px;flex-shrink:0"></div>
+            <span class="alert-icon">🍔</span>
+            <div class="alert-body">
+              <div class="alert-title">Smash Burger — Singapore</div>
+              <div class="alert-detail">All 4 platforms compared</div>
+              <div style="font-size:12px;font-weight:600;color:var(--success);margin-top:6px">S$14.90 best on Deliveroo</div>
+            </div>
+            <div class="alert-time">3h ago</div>
+          </div>
+          <div class="alert-card">
+            <div style="width:8px;height:8px;flex-shrink:0"></div>
+            <span class="alert-icon">🥙</span>
+            <div class="alert-body">
+              <div class="alert-title">Shawarma — Dubai</div>
+              <div class="alert-detail">Talabat vs Deliveroo</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:6px">Prices stable · AED 28</div>
+            </div>
+            <div class="alert-time">6h ago</div>
+          </div>
+          <div style="background:var(--white);border:1.5px dashed #DDD9D0;border-radius:16px;padding:16px;text-align:center;color:var(--muted);font-size:13px;margin:0">
+            <div style="font-size:22px;margin-bottom:6px">🔔</div>
+            Set an alert for any dish in any of your 7 countries
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- COMPLETE BUSINESS PLAN -->
+<div class="section-divider">Complete Business Plan</div>
+
+<div class="plan-section">
+  <div class="plan-title">FoodBeat Global</div>
+  <div class="plan-subtitle">A food delivery price comparison app · 7 countries · 20+ platforms</div>
+
+  <!-- METRICS -->
+  <div class="metrics-row">
+    <div class="metric-box"><div class="metric-val">7</div><div class="metric-lbl">Countries</div></div>
+    <div class="metric-box"><div class="metric-val">20+</div><div class="metric-lbl">Delivery apps</div></div>
+    <div class="metric-box"><div class="metric-val">6</div><div class="metric-lbl">Currencies</div></div>
+    <div class="metric-box"><div class="metric-val">$177B</div><div class="metric-lbl">Market size 2025</div></div>
+    <div class="metric-box"><div class="metric-val">12%</div><div class="metric-lbl">Market CAGR</div></div>
+  </div>
+
+  <!-- 1. PROBLEM & SOLUTION -->
+  <div class="plan-block">
+    <div class="plan-block-title">1. Problem & Solution</div>
+    <div class="plan-grid">
+      <div class="plan-card">
+        <div class="plan-card-top">The Problem</div>
+        <div class="plan-card-title">Too many apps, no easy comparison</div>
+        <div class="plan-card-body">NRIs, expats, and frequent travellers operate across multiple countries — each with different dominant food apps. The same dish on GrabFood can cost 30% more than on Foodpanda. Nobody has time to open 4 apps just to find the cheapest Pad Thai.</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-top">The Solution</div>
+        <div class="plan-card-title">One search. All platforms. Best price.</div>
+        <div class="plan-card-body">FoodBeat detects your country, searches the same dish across all local delivery apps simultaneously, and shows you a clean price comparison including item price, delivery fee, and platform fees — then deep-links you directly to the cheapest option to place the order.</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-top">The Insight</div>
+        <div class="plan-card-title">Delivery fees are the hidden cost</div>
+        <div class="plan-card-body">Food item prices are often identical across platforms. The difference lies in delivery fees, platform fees, and small-order surcharges. FoodBeat reveals the true total cost — something no single platform app shows you.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. TARGET USERS -->
+  <div class="plan-block">
+    <div class="plan-block-title">2. Target Users</div>
+    <div class="plan-grid">
+      <div class="plan-card">
+        <div class="plan-card-top">Primary</div>
+        <div class="plan-card-title">NRIs & expats</div>
+        <div class="plan-card-body">People like you — living in one country (Thailand), managing life across India, UAE, Singapore. They already use multiple food apps and feel the pain of switching between them. High tech literacy, price conscious, frequent orderers.</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-top">Secondary</div>
+        <div class="plan-card-title">Frequent business travellers</div>
+        <div class="plan-card-body">Executives and consultants flying between Singapore, Dubai, Mumbai, and New York. They land in a new city and immediately need to figure out which food app works and what's the best deal — without downloading a new app each time.</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-top">Tertiary</div>
+        <div class="plan-card-title">Value-conscious locals</div>
+        <div class="plan-card-body">Home-country users who order delivery frequently and want to save money. This segment is large (hundreds of millions) but price sensitivity means they need a free tier to acquire. Monetise via premium or B2B data, not directly from this group.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. PLATFORMS BY COUNTRY -->
+  <div class="plan-block">
+    <div class="plan-block-title">3. Platform Coverage by Country</div>
+    <div class="plan-grid">
+      <div class="plan-card"><div class="plan-card-top">🇹🇭 Thailand</div><div class="plan-card-title">Southeast Asia home base</div><div class="plan-card-body">GrabFood · Foodpanda · ShopeeFood · Robinhood · AirAsia Food. Start here — you know the market, both major platforms (Grab + Panda) have scraper APIs, and Bangkok is one of the most active food delivery cities in SEA.</div></div>
+      <div class="plan-card"><div class="plan-card-top">🇮🇳 India</div><div class="plan-card-title">Largest volume market</div><div class="plan-card-body">Zomato · Swiggy · Foodpanda · Magicpin. India is your second market — NRI personal connection, 520+ cities, massive order volumes. Zomato and Swiggy have significant price differences that FoodBeat makes immediately visible.</div></div>
+      <div class="plan-card"><div class="plan-card-top">🇸🇬 Singapore</div><div class="plan-card-title">Premium high-value market</div><div class="plan-card-body">GrabFood · Foodpanda · Deliveroo · Uber Eats. Four major players actively competing. Highest average order values. Research shows GrabFood is consistently 2–3 SGD more expensive than competitors — a clear, demonstrable saving opportunity for FoodBeat.</div></div>
+      <div class="plan-card"><div class="plan-card-top">🇦🇪 UAE / Dubai</div><div class="plan-card-title">Expat-dominated market</div><div class="plan-card-body">Talabat · Deliveroo · Zomato · Careem Now · Noon Food. Over 85% of Dubai's population are expats — ideal FoodBeat users. Talabat dominates the GCC region and is the hardest to integrate technically. Deliveroo positions as the premium alternative.</div></div>
+      <div class="plan-card"><div class="plan-card-top">🇮🇩 Indonesia</div><div class="plan-card-title">270M population opportunity</div><div class="plan-card-body">GoFood (Gojek) · GrabFood · ShopeeFood · Foodpanda. Gojek dominates Indonesia deeply but is challenging to scrape. IDR currency needs careful UI handling (large numbers). Jakarta and Bali are the initial focus cities before national expansion.</div></div>
+      <div class="plan-card"><div class="plan-card-top">🇺🇸 USA</div><div class="plan-card-title">Largest revenue market</div><div class="plan-card-body">DoorDash (market leader) · Uber Eats · Grubhub · Instacart. North America represents 27% of global food delivery revenue. DoorDash's DashPass, Uber One, and Grubhub+ subscriptions create significant price variation that FoodBeat can expose clearly.</div></div>
+      <div class="plan-card"><div class="plan-card-top">🇨🇦 Canada</div><div class="plan-card-title">Large Indian diaspora</div><div class="plan-card-body">Uber Eats · DoorDash · SkipTheDishes · Just Eat. Canada has 1.8 million Indian-origin residents — a natural extension of your India audience. SkipTheDishes is unique to Canada and provides meaningful price comparison opportunities.</div></div>
+    </div>
+  </div>
+
+  <!-- 4. BUILD PHASES -->
+  <div class="plan-block">
+    <div class="plan-block-title">4. Build Roadmap</div>
+    <div class="phase-timeline">
+      <div class="phase-item">
+        <div class="phase-header"><span class="phase-period">Month 1–2</span><span class="phase-name">Phase 1 — Thailand + India MVP</span></div>
+        <div class="phase-content">Build the core comparison engine for GrabFood, Foodpanda, Zomato, and Swiggy. Web app only (no mobile yet). Bangkok + 3 Indian cities (Mumbai, Delhi, Bengaluru). Focus on proving the search-compare-redirect flow works cleanly. Target: 100 test users, validate core value proposition. Stack: React frontend, FastAPI backend, Redis cache, your chosen data source.</div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-header"><span class="phase-period">Month 3–4</span><span class="phase-name">Phase 2 — Mobile App + Singapore</span></div>
+        <div class="phase-content">Launch React Native mobile app for iOS and Android. Add GPS-based country detection and deep-linking to each delivery platform app. Integrate Singapore (GrabFood, Foodpanda, Deliveroo, Uber Eats). Add price history graphs so users can see trends. Target: 1,000 downloads, collect feedback on UX.</div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-header"><span class="phase-period">Month 5–6</span><span class="phase-name">Phase 3 — Indonesia + UAE</span></div>
+        <div class="phase-content">Add Indonesia (GoFood, GrabFood, ShopeeFood) and UAE (Talabat, Deliveroo, Zomato). Currency localisation across all 6 currencies. Launch price drop alerts feature — users set a dish + threshold, get push notification when price drops on any platform. Target: 5,000 active users. Begin collecting waitlist for premium tier.</div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-header"><span class="phase-period">Month 7–8</span><span class="phase-name">Phase 4 — USA + Canada</span></div>
+        <div class="phase-content">Add DoorDash, Uber Eats, Grubhub (USA) and SkipTheDishes, Just Eat (Canada). Launch FoodBeat Pro subscription tier. Full 7-country coverage live. Begin outreach to Indian community groups in Toronto and Vancouver. Target: 15,000 active users, 500 Pro subscribers.</div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-header"><span class="phase-period">Month 9+</span><span class="phase-name">Phase 5 — Intelligence + B2B</span></div>
+        <div class="phase-content">ML-powered best-time-to-order predictions. Cross-country price comparison for travellers (e.g. "Is the same McDonald's meal cheaper in Singapore or Bangkok?"). Launch B2B data API for restaurants, investors, and market research firms. Begin conversations with restaurant chains for insights dashboard product.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. REVENUE MODEL -->
+  <div class="plan-block">
+    <div class="plan-block-title">5. Revenue Model</div>
+    <div class="revenue-row">
+      <div class="rev-num">01</div>
+      <div><div class="rev-title">Affiliate deep-links</div><div class="rev-desc">Commission when users click through to order. GrabFood, DoorDash, Uber Eats all have affiliate programmes. Zero friction — works from day one.</div></div>
+      <div class="rev-est">$0.30–1.00 / order</div>
+    </div>
+    <div class="revenue-row">
+      <div class="rev-num">02</div>
+      <div><div class="rev-title">FoodBeat Pro subscription</div><div class="rev-desc">Free: 5 searches/day, 2 countries. Pro ($3–5/month): unlimited searches, all 7 countries, price alerts, history charts, favourite restaurants saved.</div></div>
+      <div class="rev-est">$3–5 / user / mo</div>
+    </div>
+    <div class="revenue-row">
+      <div class="rev-num">03</div>
+      <div><div class="rev-title">NRI/Expat bundle</div><div class="rev-desc">Annual plan marketed directly to NRI communities in Canada, UAE, Singapore. Positioned alongside expat services — remittance, SIMs, banking.</div></div>
+      <div class="rev-est">$29 / year</div>
+    </div>
+    <div class="revenue-row">
+      <div class="rev-num">04</div>
+      <div><div class="rev-title">B2B data API</div><div class="rev-desc">Sell normalised, multi-country pricing data to restaurants, F&B investors, consultants, and market research firms. High margin, low volume.</div></div>
+      <div class="rev-est">$200–2,000 / mo</div>
+    </div>
+    <div class="revenue-row">
+      <div class="rev-num">05</div>
+      <div><div class="rev-title">Restaurant insights dashboard</div><div class="rev-desc">Show restaurants how their prices compare to local competitors across all platforms in their city. SaaS product, sold to F&B chains.</div></div>
+      <div class="rev-est">$30–100 / rest / mo</div>
+    </div>
+  </div>
+
+  <!-- 6. TECH STACK -->
+  <div class="plan-block">
+    <div class="plan-block-title">6. Tech Stack (Data-source Agnostic)</div>
+    <div class="plan-grid">
+      <div class="plan-card"><div class="plan-card-top">Mobile frontend</div><div class="plan-card-title">React Native + Expo</div><div class="plan-card-body">Single codebase for iOS + Android. Fast builds. Native deep-linking to each platform app via URL schemes (e.g. grab:// foodpanda:// doordash://).</div></div>
+      <div class="plan-card"><div class="plan-card-top">Web frontend</div><div class="plan-card-title">Next.js (PWA)</div><div class="plan-card-body">Progressive web app as web fallback. Server-side rendering for SEO. Works for travellers on laptop, and for the B2B dashboard.</div></div>
+      <div class="plan-card"><div class="plan-card-top">Backend API</div><div class="plan-card-title">FastAPI (Python)</div><div class="plan-card-body">Async REST endpoints: /search, /compare, /platforms, /alerts. Each country/platform routed through its own adapter module. Clean separation means adding a new data source = one new adapter file.</div></div>
+      <div class="plan-card"><div class="plan-card-top">Data adapter layer</div><div class="plan-card-title">Platform adapters (your choice)</div><div class="plan-card-body">Each platform (GrabFood, Zomato, DoorDash etc.) has one adapter that normalises output into the common schema: { platform, country, restaurant, item, itemPrice, deliveryFee, platformFee, ETA, currency, timestamp }.</div></div>
+      <div class="plan-card"><div class="plan-card-top">Cache</div><div class="plan-card-title">Redis (15-min TTL)</div><div class="plan-card-body">Cache per {country, city, restaurantId, platform}. Reduces data source calls by ~80% for popular searches. Slash costs while keeping prices fresh enough for practical use.</div></div>
+      <div class="plan-card"><div class="plan-card-top">Database</div><div class="plan-card-title">PostgreSQL</div><div class="plan-card-body">Historical prices, restaurant catalogue, user saved alerts, account data. Price history is the moat — the longer you run, the more valuable your dataset.</div></div>
+      <div class="plan-card"><div class="plan-card-top">Location</div><div class="plan-card-title">GPS + IP Geolocation</div><div class="plan-card-body">Layer 1: GPS (accurate, requires permission). Layer 2: MaxMind / IPinfo (no permission needed). Layer 3: Manual country override — critical for NRIs checking home-country prices while abroad.</div></div>
+      <div class="plan-card"><div class="plan-card-top">Currency</div><div class="plan-card-title">ExchangeRate-API</div><div class="plan-card-body">Free tier handles 1,500 req/month. Cache rates for 1 hour. Never store converted prices — always store in original currency and convert at display time. 6 currencies: THB, INR, SGD, IDR, AED, USD, CAD.</div></div>
+      <div class="plan-card"><div class="plan-card-top">Infra</div><div class="plan-card-title">Fly.io → AWS ECS</div><div class="plan-card-body">Start on Fly.io (~$30/mo, zero DevOps). Migrate to AWS ECS when traffic justifies it. Docker containers throughout — clean horizontal scaling per country region.</div></div>
+    </div>
+  </div>
+
+  <!-- 7. TEAM -->
+  <div class="plan-block">
+    <div class="plan-block-title">7. Team to Build This</div>
+    <div class="team-row">
+      <div class="team-card"><div class="team-role">Founder / Product</div><div class="team-name">You (Thaker)</div><div class="team-note">Domain expertise, market access across 7 countries, investment/business acumen. Drives product vision and BD.</div></div>
+      <div class="team-card"><div class="team-role">Full-Stack Developer</div><div class="team-name">1 engineer (hire)</div><div class="team-note">React Native + FastAPI. Freelance ($2–5k/mo) or co-founder with equity. Thailand / India / Eastern Europe are good talent pools.</div></div>
+      <div class="team-card"><div class="team-role">Data Integration</div><div class="team-name">1 engineer (hire)</div><div class="team-note">Builds and maintains platform adapters. Can be fractional or freelance once data source strategy is decided.</div></div>
+      <div class="team-card"><div class="team-role">Design</div><div class="team-name">Freelance UI/UX</div><div class="team-note">Fiverr / Toptal for initial design system and screens. ~$1,500–3,000 one-time to turn this mockup into production assets.</div></div>
+      <div class="team-card"><div class="team-role">Marketing</div><div class="team-name">NRI community mgr</div><div class="team-note">Part-time. Manages Reddit (r/india, r/NRI), Facebook NRI groups, LinkedIn. Growth through community, not paid ads at first.</div></div>
+    </div>
+  </div>
+
+  <!-- 8. COSTS -->
+  <div class="plan-block">
+    <div class="plan-block-title">8. Cost Estimates</div>
+    <div class="plan-grid">
+      <div class="plan-card"><div class="plan-card-top">MVP (Phase 1) · Monthly</div><div class="plan-card-title">~$150–300 / month</div><div class="plan-card-body">Data source costs (your budget) + Fly.io hosting $30 + PostgreSQL managed $25 + Redis $15 + Domain + SSL $5. Lean enough to self-fund from day one.</div></div>
+      <div class="plan-card"><div class="plan-card-top">Full Scale (Phase 4) · Monthly</div><div class="plan-card-title">~$500–900 / month</div><div class="plan-card-body">All 7 countries live. AWS ECS migration ~$150 + full data source costs + managed DB $60 + Redis cluster $40 + Push notifications $20 + CDN $30. Well within reach of affiliate + early subscription revenue.</div></div>
+      <div class="plan-card"><div class="plan-card-top">One-time Setup</div><div class="plan-card-title">~$5,000–12,000</div><div class="plan-card-body">Developer build cost (freelance, 3 months): $4,000–8,000. Design (UI/UX production): $1,500–3,000. Legal (privacy policy, ToS, entity): $500–1,000. App store fees: $125.</div></div>
+    </div>
+  </div>
+
+  <!-- 9. RISKS -->
+  <div class="plan-block">
+    <div class="plan-block-title">9. Key Risks & Mitigations</div>
+    <div class="risk-list">
+      <div class="risk-item"><span class="risk-level rl-high">High</span><span class="risk-txt">Data access — platforms like GrabFood, Talabat, and GoFood actively block data extraction. You are researching alternatives, which is the right approach. Mitigation: use legitimate data partnerships, affiliate APIs, or licensed data providers where available. Always have a ToS-compliant path before launch.</span></div>
+      <div class="risk-item"><span class="risk-level rl-high">High</span><span class="risk-txt">Price staleness — delivery app prices change by the hour, by account, and by promotion. Scraped or cached data can be outdated. Mitigation: 15-minute cache TTL max, display "prices as of X minutes ago" prominently, and add disclaimer that account discounts may apply.</span></div>
+      <div class="risk-item"><span class="risk-level rl-med">Medium</span><span class="risk-txt">Privacy regulations — Singapore PDPA, UAE PDPL, India DPDP Act, GDPR (for any EU users). Location data collection is sensitive. Mitigation: privacy-first design, minimal data collection, proper consent flows, and a DPA-compliant privacy policy before launch in each market.</span></div>
+      <div class="risk-item"><span class="risk-level rl-med">Medium</span><span class="risk-txt">User acquisition cost — getting initial downloads outside your own network is expensive. Mitigation: lean into NRI/expat communities on Reddit, Facebook groups, LinkedIn, and WhatsApp. These communities are highly networked and share useful apps aggressively.</span></div>
+      <div class="risk-item"><span class="risk-level rl-med">Medium</span><span class="risk-txt">Platform deep-linking — iOS and Android handle deep-links to other apps differently, and URLs change when apps update. Mitigation: build a fallback to web URL if the app link fails. Test deep-links on every app update.</span></div>
+      <div class="risk-item"><span class="risk-level rl-low">Low</span><span class="risk-txt">Currency display confusion — IDR (Indonesia) values are very large (50,000+ per meal) and INR vs SGD vs AED vs USD can confuse travellers. Mitigation: always show the currency symbol prominently, never show converted values without clearly labelling the source and rate.</span></div>
+    </div>
+  </div>
+
+  <!-- 10. GO TO MARKET -->
+  <div class="plan-block">
+    <div class="plan-block-title">10. Go-to-Market Strategy</div>
+    <div class="plan-grid">
+      <div class="plan-card"><div class="plan-card-top">Launch channel 1</div><div class="plan-card-title">NRI community groups</div><div class="plan-card-body">Reddit: r/india, r/NRI, r/singapore, r/dubai. Facebook: NRI in Thailand, Indians in Singapore, Indians in Dubai (each has 10,000–100,000 members). These communities love and share practical money-saving tools.</div></div>
+      <div class="plan-card"><div class="plan-card-top">Launch channel 2</div><div class="plan-card-title">Expat blogs & newsletters</div><div class="plan-card-body">Bangkok expat blogs, Time Out Singapore, What's On Dubai, Internations. Pitch the app as a practical tool for new expats who don't know which food app to use when they land in a new city.</div></div>
+      <div class="plan-card"><div class="plan-card-top">Launch channel 3</div><div class="plan-card-title">App Store optimisation</div><div class="plan-card-body">Keywords: "food delivery comparison", "cheapest food delivery", "grab vs foodpanda", "best food app in Bangkok/Singapore/Dubai". These are low competition, high-intent search terms.</div></div>
+      <div class="plan-card"><div class="plan-card-top">Launch channel 4</div><div class="plan-card-title">Content marketing</div><div class="plan-card-body">Monthly "cheapest food delivery app in [city]" blog posts. These rank in Google for long-tail searches and drive organic installs. Example: "Grab vs Foodpanda in Bangkok 2026 — which is cheaper?" Answer: use FoodBeat to check.</div></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="text-align:center;margin-top:48px;padding-top:32px;border-top:1px solid var(--mid);">
+    <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--white);">Food<span style="color:var(--accent)">Beat</span></div>
+    <div style="font-size:13px;color:var(--muted);margin-top:8px;">One search. Every platform. Best price.</div>
+  </div>
+
+</div>
+
+</body>
+</html>

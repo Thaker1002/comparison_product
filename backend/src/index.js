@@ -18,6 +18,10 @@ import {
 import { COUNTRIES, getCountry, listCountries } from "./countries.js";
 import { registerAuthRoutes } from "./auth.js";
 import { registerFlightRoutes } from "./flights.js";
+import { registerFoodRoutes } from "./food.js";
+import { scrapeUberFares } from "./uber-scraper.js";
+import { scrapeBoltFares } from "./bolt-scraper.js";
+import { getCache, setCache } from "./cache.js";
 
 dotenv.config();
 
@@ -1416,14 +1420,34 @@ app.post("/api/search", upload.single("image"), async (req, res) => {
       serpProducts = serpMatches
         .filter(vm => vm.title)
         .map((vm, idx) => {
-          // Check if this is from a local marketplace
-          const sourceDomain = vm.source || "";
-          const isLocal = localDomains.some(d => sourceDomain.includes(d) || vm.link.includes(d));
+          // Try to detect the real marketplace from the link URL
+          let sourceDomain = vm.source || "";
+          let matchedMarket = null;
+          if (vm.link) {
+            try {
+              const linkHost = new URL(vm.link).hostname.replace(/^www\./, "");
+              // First try matching by hostname
+              matchedMarket = countryInfo.marketplaces.find(m =>
+                linkHost === m.domain || linkHost.endsWith(`.${m.domain}`)
+              );
+              if (matchedMarket) {
+                sourceDomain = matchedMarket.domain;
+              } else {
+                // Google may wrap in a redirect (google.com/url?url=...) — scan all known marketplace domains
+                if (linkHost.includes("google.") || !sourceDomain) {
+                  matchedMarket = countryInfo.marketplaces.find(m => vm.link.includes(m.domain));
+                  if (matchedMarket) sourceDomain = matchedMarket.domain;
+                }
+                if (!sourceDomain) sourceDomain = linkHost;
+              }
+            } catch (_) {}
+          }
+          const isLocal = !!matchedMarket || localDomains.some(d => sourceDomain.includes(d) || (vm.link || "").includes(d));
           const displayCurrency = vm.currency || (isLocal ? countryCurrency : "USD");
 
-          // Clean site prefixes from titles ("Amazon.com: UTEBIT..." → "UTEBIT...")
+          // Clean site prefixes from titles
           let cleanTitle = vm.title
-            .replace(/^(Amazon\.com|eBay|AliExpress|Alibaba|Walmart|Lazada|Shopee|Temu|Target|Best Buy)\s*[:\-|]\s*/i, "")
+            .replace(/^(Amazon\.com|eBay|AliExpress|Alibaba|Walmart|Lazada|Shopee|Temu|Target|Best Buy|Tokopedia|Bukalapak|Blibli)\s*[:\-|]\s*/i, "")
             .replace(/\s*[|\-]\s*(Amazon|eBay|AliExpress|Alibaba|Walmart|Shopee|Lazada|Temu).*$/i, "")
             .trim();
 
@@ -1437,17 +1461,17 @@ app.post("/api/search", upload.single("image"), async (req, res) => {
             rating: null,
             reviewCount: null,
             soldCount: null,
-            relevance: isLocal ? 1.0 : 0.8, // prioritize local marketplace matches
-            seller: vm.source || null,
+            relevance: isLocal ? 1.0 : 0.8,
+            seller: vm.source || sourceDomain || null,
             location: null,
-            badge: isLocal ? "🔍 Google Lens (Local)" : "🔍 Google Lens",
+            badge: isLocal ? "🔍 Google Lens" : "🔍 Google Lens",
             quantity: null,
             capacity: null,
             brand: null,
-            marketplace: "google_lens",
-            marketplaceName: isLocal ? `Google Lens (${sourceDomain})` : "Google Lens",
-            marketplaceColor: "#4285F4",
-            marketplaceDomain: sourceDomain || "google.com",
+            marketplace: matchedMarket ? matchedMarket.id : "google_lens",
+            marketplaceName: matchedMarket ? matchedMarket.name : (isLocal ? `Google Lens (${sourceDomain})` : "Google Lens"),
+            marketplaceColor: matchedMarket ? matchedMarket.color : "#4285F4",
+            marketplaceDomain: matchedMarket ? matchedMarket.domain : (sourceDomain || "google.com"),
             marketplaceLogo: "🔍",
             currency: displayCurrency,
             id: `serp-${Date.now()}-${idx}`,
@@ -1703,11 +1727,164 @@ if (fs.existsSync(distPath)) {
   });
 }
 
+// ─── RideGuru live price scraping ────────────────────────────────────────────
+// Countries where RideGuru has meaningful coverage
+const RIDEGURU_COUNTRIES = new Set(['US', 'CA', 'UK', 'IN', 'AU']);
+
+function parseRideGuruPrices(content) {
+  const prices = [];
+  if (!content) return prices;
+
+  // Match service names followed by a price range like "$12.34 - $15.67" or "£10 – £14"
+  const currencyCls = '[$£€₹]';
+  const re = new RegExp(
+    `(Uber[\\w\\s]{0,20}?|Lyft[\\w\\s]{0,20}?|inDrive[\\w\\s]{0,20}?|Via[\\w\\s]{0,10}?|Wingz[\\w\\s]{0,10}?|Ola[\\w\\s]{0,10}?|Grab[\\w\\s]{0,10}?|Bolt[\\w\\s]{0,10}?|Careem[\\w\\s]{0,10}?|Beck[\\w\\s]{0,10}?|Rapido[\\w\\s]{0,10}?)` +
+    `\\s*${currencyCls}\\s*(\\d+\\.?\\d*)\\s*[-–]\\s*${currencyCls}?\\s*(\\d+\\.?\\d*)`,
+    'gi'
+  );
+
+  const seen = new Set();
+  let match;
+  while ((match = re.exec(content)) !== null) {
+    const name = match[1].trim();
+    const key = name.toLowerCase().replace(/\s+/g, '');
+    if (!seen.has(key)) {
+      seen.add(key);
+      prices.push({ service: name, low: parseFloat(match[2]), high: parseFloat(match[3]) });
+    }
+  }
+  return prices;
+}
+
+// ─── Uber live fare scraper (Playwright API interception) ────────────────────
+// Scrapes uber.com/global/en/price-estimate/ and intercepts the internal JSON API.
+// Falls back gracefully — returns { fares: [], source: 'unavailable' } on failure.
+// Results are cached for 5 minutes to avoid redundant browser launches.
+app.post('/api/uber-fare', async (req, res) => {
+  const { pickupAddress, dropoffAddress } = req.body;
+  if (!pickupAddress || !dropoffAddress) {
+    return res.status(400).json({ error: 'Missing pickupAddress or dropoffAddress' });
+  }
+  const cacheKey = `uber:${pickupAddress}:${dropoffAddress}`;
+  const cached = getCache(cacheKey);
+  if (cached) {
+    console.log('🚕 Uber fare: cache hit');
+    return res.json(cached);
+  }
+  try {
+    console.log(`🚕 Uber scrape request: "${pickupAddress}" → "${dropoffAddress}"`);
+    const result = await scrapeUberFares({ pickupAddress, dropoffAddress });
+    if (!result) {
+      return res.json({ fares: [], source: 'unavailable' });
+    }
+    setCache(cacheKey, result, 300);
+    res.json(result);
+  } catch (err) {
+    console.error('❌ /api/uber-fare error:', err.message);
+    res.json({ fares: [], source: 'error', error: err.message });
+  }
+});
+
+// ─── Bolt live fare scraper (Playwright API interception) ───────────────────
+// Navigates to bolt.eu with coords in URL and intercepts the price API.
+// Results are cached for 5 minutes.
+app.post('/api/bolt-fare', async (req, res) => {
+  const { pickup, dropoff, country } = req.body;
+  if (!pickup?.lat || !dropoff?.lat || !country) {
+    return res.status(400).json({ error: 'Missing pickup, dropoff, or country' });
+  }
+  const cacheKey = `bolt:${pickup.lat},${pickup.lng}:${dropoff.lat},${dropoff.lng}:${country}`;
+  const cached = getCache(cacheKey);
+  if (cached) {
+    console.log('⚡ Bolt fare: cache hit');
+    return res.json(cached);
+  }
+  try {
+    const result = await scrapeBoltFares({ pickup, dropoff, country });
+    if (!result) {
+      return res.json({ fares: [], source: 'unavailable' });
+    }
+    setCache(cacheKey, result, 300);
+    res.json(result);
+  } catch (err) {
+    console.error('❌ /api/bolt-fare error:', err.message);
+    res.json({ fares: [], source: 'error', error: err.message });
+  }
+});
+
+// ─── Google Maps Distance Matrix — real road distance + duration ─────────────
+app.post('/api/route-info', async (req, res) => {
+  const { pickupLat, pickupLng, dropoffLat, dropoffLng } = req.body;
+  if (!pickupLat || !pickupLng || !dropoffLat || !dropoffLng) {
+    return res.status(400).json({ error: 'Missing coordinates' });
+  }
+  const GOOGLE_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+  if (!GOOGLE_API_KEY) {
+    return res.status(500).json({ error: 'Google Maps API key not configured' });
+  }
+  try {
+    const url =
+      `https://maps.googleapis.com/maps/api/distancematrix/json` +
+      `?origins=${pickupLat},${pickupLng}` +
+      `&destinations=${dropoffLat},${dropoffLng}` +
+      `&mode=driving` +
+      `&traffic_model=best_guess` +
+      `&departure_time=now` +
+      `&key=${GOOGLE_API_KEY}`;
+    const response = await axios.get(url);
+    const element = response.data?.rows?.[0]?.elements?.[0];
+    if (!element || element.status !== 'OK') {
+      return res.status(422).json({ error: 'Route not found', details: element?.status });
+    }
+    const distanceKm = element.distance.value / 1000;
+    const durationMin = Math.round(
+      (element.duration_in_traffic?.value ?? element.duration.value) / 60
+    );
+    res.json({ distanceKm, durationMin, source: 'google_maps' });
+  } catch (err) {
+    console.error('🗺️ route-info error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/ride-prices', async (req, res) => {
+  const { pickupLat, pickupLng, dropoffLat, dropoffLng, country } = req.body;
+
+  if (!pickupLat || !pickupLng || !dropoffLat || !dropoffLng) {
+    return res.status(400).json({ error: 'Missing coordinates' });
+  }
+
+  if (!RIDEGURU_COUNTRIES.has(country)) {
+    return res.json({ prices: [], source: 'not_supported' });
+  }
+
+  const rideGuruUrl =
+    `https://ride.guru/widget?origin_latitude=${pickupLat}&origin_longitude=${pickupLng}` +
+    `&destination_latitude=${dropoffLat}&destination_longitude=${dropoffLng}`;
+
+  try {
+    console.log(`🚕 RideGuru fetch: ${rideGuruUrl}`);
+    const extracted = await tavilyExtract([rideGuruUrl]);
+    const content =
+      extracted?.results?.[0]?.raw_content ||
+      extracted?.results?.[0]?.content || '';
+    const prices = parseRideGuruPrices(content);
+    console.log(`🚕 RideGuru parsed ${prices.length} prices for ${country}`);
+    res.json({ prices, source: 'rideguru', url: rideGuruUrl });
+  } catch (err) {
+    console.error('🚕 RideGuru error:', err.message);
+    res.json({ prices: [], source: 'error', error: err.message });
+  }
+});
+
 // ─── Auth & Admin routes ─────────────────────────────────────────────────────
 registerAuthRoutes(app);
 
 // ─── Flight routes ───────────────────────────────────────────────────────────
 registerFlightRoutes(app);
+
+// ─── Food routes ────────────────────────────────────────────────────────────
+registerFoodRoutes(app);
 
 app.listen(PORT, () => {
   console.log(`\n🛒 Thaker's Quest — Backend API`);

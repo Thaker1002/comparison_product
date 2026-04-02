@@ -20,40 +20,7 @@ import type {
   SortOption,
   ViewMode,
 } from "@/types";
-
-const MARKETPLACES: {
-  id: MarketplaceId;
-  name: string;
-  emoji: string;
-  color: string;
-}[] = [
-  {
-    id: "shopee",
-    name: "Shopee",
-    emoji: "🟠",
-    color: "marketplace-tag-shopee",
-  },
-  {
-    id: "lazada",
-    name: "Lazada",
-    emoji: "🔵",
-    color: "marketplace-tag-lazada",
-  },
-  {
-    id: "jdcentral",
-    name: "JD Central",
-    emoji: "🔴",
-    color: "marketplace-tag-jdcentral",
-  },
-  { id: "bigc", name: "Big C", emoji: "🟡", color: "marketplace-tag-bigc" },
-  {
-    id: "central",
-    name: "Central",
-    emoji: "🏬",
-    color: "marketplace-tag-central",
-  },
-  { id: "makro", name: "Makro", emoji: "🏪", color: "marketplace-tag-makro" },
-];
+import { getMarketplacesForCountry } from "@/lib/countryMarketplaces";
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: "price-asc", label: "Price: Low to High" },
@@ -74,6 +41,7 @@ interface SearchBarProps {
   resultCount?: number;
   className?: string;
   hasImage?: boolean;
+  country?: string;
 }
 
 // Voice search hook
@@ -124,12 +92,14 @@ export function SearchBar({
   resultCount,
   className,
   hasImage = false,
+  country,
 }: SearchBarProps) {
   const { t, i18n } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
   const [showSort, setShowSort] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const lang = (i18n.language || 'en').toLowerCase();
+  const MARKETPLACES = getMarketplacesForCountry(country ?? "TH");
   const { start: startVoice, stop: stopVoice, listening } = useVoiceSearch({
     onResult: (text) => onQueryChange(text),
     lang,

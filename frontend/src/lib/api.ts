@@ -14,6 +14,7 @@ const API_BASE = '/api'
 
 export interface SearchRequest {
   query: string
+  country?: string
   marketplaces?: string[]
   searchMode?: 'scrape' | 'search'
   image?: string
@@ -109,6 +110,10 @@ export interface ProductDetailResponse {
 export async function searchProducts(params: SearchRequest): Promise<SearchResponse> {
   const formData = new FormData()
   formData.append('query', params.query)
+
+  if (params.country) {
+    formData.append('country', params.country)
+  }
 
   if (params.marketplaces && params.marketplaces.length > 0) {
     params.marketplaces.forEach((m) => formData.append('marketplaces', m))

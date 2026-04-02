@@ -541,6 +541,98 @@ export const COUNTRIES = {
       },
     ],
   },
+
+  ID: {
+    code: "ID",
+    name: "Indonesia",
+    flag: "🇮🇩",
+    currency: "IDR",
+    languages: ["id", "en"],
+    marketplaces: [
+      {
+        id: "tokopedia",
+        name: "Tokopedia",
+        domain: "tokopedia.com",
+        color: "#42B549",
+        logo: "https://www.tokopedia.com/favicon.ico",
+        searchUrl: (q) =>
+          `https://www.tokopedia.com/search?st=${encodeURIComponent(q)}`,
+      },
+      {
+        id: "shopee-id",
+        name: "Shopee",
+        domain: "shopee.co.id",
+        color: "#EE4D2D",
+        logo: "https://cf.shopee.co.id/file/sg-11134004-23030-sivjw8u2vcnvdf",
+        searchUrl: (q) =>
+          `https://shopee.co.id/search?keyword=${encodeURIComponent(q)}`,
+      },
+      {
+        id: "lazada-id",
+        name: "Lazada",
+        domain: "lazada.co.id",
+        color: "#0F146D",
+        logo: "https://lzd-img-global.slatic.net/g/tps/tfs/TB1e_d8cOqAXuNjy1XdXXaYcVXa-234-58.png",
+        searchUrl: (q) =>
+          `https://www.lazada.co.id/catalog/?q=${encodeURIComponent(q)}`,
+      },
+      {
+        id: "bukalapak",
+        name: "Bukalapak",
+        domain: "bukalapak.com",
+        color: "#E31216",
+        logo: "https://www.bukalapak.com/favicon.ico",
+        searchUrl: (q) =>
+          `https://www.bukalapak.com/products?search[keywords]=${encodeURIComponent(q)}`,
+      },
+      {
+        id: "blibli",
+        name: "Blibli",
+        domain: "blibli.com",
+        color: "#0073CF",
+        logo: "https://www.blibli.com/favicon.ico",
+        searchUrl: (q) =>
+          `https://www.blibli.com/search/${encodeURIComponent(q)}`,
+      },
+    ],
+  },
+
+  PH: {
+    code: "PH",
+    name: "Philippines",
+    flag: "🇵🇭",
+    currency: "PHP",
+    languages: ["tl", "en"],
+    marketplaces: [
+      {
+        id: "shopee-ph",
+        name: "Shopee",
+        domain: "shopee.com.ph",
+        color: "#EE4D2D",
+        logo: "https://cf.shopee.com.ph/file/sg-11134004-23030-sivjw8u2vcnvdf",
+        searchUrl: (q) =>
+          `https://shopee.com.ph/search?keyword=${encodeURIComponent(q)}`,
+      },
+      {
+        id: "lazada-ph",
+        name: "Lazada",
+        domain: "lazada.com.ph",
+        color: "#0F146D",
+        logo: "https://lzd-img-global.slatic.net/g/tps/tfs/TB1e_d8cOqAXuNjy1XdXXaYcVXa-234-58.png",
+        searchUrl: (q) =>
+          `https://www.lazada.com.ph/catalog/?q=${encodeURIComponent(q)}`,
+      },
+      {
+        id: "zalora-ph",
+        name: "Zalora",
+        domain: "zalora.com.ph",
+        color: "#FF007F",
+        logo: "https://www.zalora.com.ph/favicon.ico",
+        searchUrl: (q) =>
+          `https://www.zalora.com.ph/search/?q=${encodeURIComponent(q)}`,
+      },
+    ],
+  },
 };
 
 // Helper to get all country codes
